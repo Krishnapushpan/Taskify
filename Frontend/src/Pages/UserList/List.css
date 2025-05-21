@@ -1,0 +1,184 @@
+/* Updated List.css with full viewport */
+.client-list-wrapper {
+    width: 100%;
+    padding: 0;
+    max-width: 100%;
+    overflow-x: hidden;
+    min-height: 100vh;
+    min-width: 90vw;
+}
+  
+.project-list-container {
+    background: white;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin: 0;
+    padding: 20px;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+    min-height: 100vh;
+}
+  
+.project-list-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    width: 100%;
+    padding: 0 20px;
+}
+  
+.project-list-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #323a46;
+}
+  
+.project-list-actions {
+    display: flex;
+    gap: 15px;
+}
+  
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0 20px;
+}
+  
+.project-list-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 800px;
+}
+  
+.project-list-table th {
+    padding: 15px 20px;
+    text-align: left;
+    border-bottom: 1px solid #e5e5e5;
+    font-weight: 600;
+    color: #6c757d;
+    font-size: 14px;
+    white-space: nowrap;
+    background-color: #f8f9fa;
+}
+  
+.project-list-table td {
+    padding: 15px 20px;
+    border-bottom: 1px solid #f2f2f2;
+    font-size: 14px;
+    color: #444;
+}
+  
+.project-list-table tr:hover {
+    background-color: #f8f9fa;
+}
+  
+.client-edit-btn {
+    background: #e3f2fd;
+    color: #1976d2;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 20px;
+    margin-right: 8px;
+    font-size: 0.98rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+  
+.client-edit-btn:hover {
+    background: #1976d2;
+    color: #fff;
+}
+  
+.client-delete-btn {
+    background: #ffebee;
+    color: #d32f2f;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 20px;
+    font-size: 0.98rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+  
+.client-delete-btn:hover {
+    background: #d32f2f;
+    color: #fff;
+}
+  
+/* Modal styles with viewport fixes */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+  
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+  
+.modal-label {
+    display: block;
+    margin-bottom: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #495057;
+}
+  
+.modal-input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    margin-top: 5px;
+    font-size: 14px;
+}
+  
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 25px;
+    gap: 12px;
+}
+  
+/* Add responsive styles for smaller screens */
+@media (max-width: 768px) {
+    .project-list-container {
+        padding: 15px 10px;
+    }
+    
+    .project-list-header {
+        padding: 0 10px;
+    }
+    
+    .table-responsive {
+        padding: 0 10px;
+    }
+    
+    .client-edit-btn, .client-delete-btn {
+        padding: 6px 15px;
+        font-size: 0.85rem;
+    }
+    
+    .modal-content {
+        padding: 20px;
+        width: 95%;
+    }
+}
