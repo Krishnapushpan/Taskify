@@ -87,14 +87,7 @@ export const loginUser = async (req, res) => {
     );
 
     // Set cookie
-    res.cookie("Authtoken", token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      path: "/",
-      maxAge: 3600000, // 1 hour in milliseconds
-      domain: process.env.NODE_ENV === "production" ? ".vercel.app" : undefined
-    });
+    res.cookie("Authtoken", token);
     
 
     // Send response
