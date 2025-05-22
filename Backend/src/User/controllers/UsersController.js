@@ -87,7 +87,13 @@ export const loginUser = async (req, res) => {
     );
 
     // Set cookie
-    res.cookie("Authtoken", token);
+    // res.cookie("Authtoken", token);
+    res.cookie("Authtoken", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "None",
+    });
+    
 
     // Send response
     res.json({
