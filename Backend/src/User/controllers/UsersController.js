@@ -87,7 +87,15 @@ export const loginUser = async (req, res) => {
     );
 
     // Set cookie
-    res.cookie("Authtoken", token);
+    // res.cookie("Authtoken", token);
+    res.cookie("Authtoken", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      path: "/",
+      maxAge: 3600000,
+      domain: ".onrender.com"
+    });
     
 
     // Send response
