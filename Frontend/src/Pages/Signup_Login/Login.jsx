@@ -24,10 +24,16 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/users/login`, {
-        email: form.email,
-        password: form.password,
-      });
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/users/login`,
+        {
+          email: form.email,
+          password: form.password,
+        },
+        {
+          withCredentials: true,
+        }
+      );
 
       if (response.data.status) {
         // Store user data in localStorage
