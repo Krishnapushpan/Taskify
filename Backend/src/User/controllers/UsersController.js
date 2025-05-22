@@ -94,7 +94,6 @@ export const loginUser = async (req, res) => {
       sameSite: "none",
       path: "/",
       maxAge: 3600000,
-      domain: ".onrender.com"
     });
     
 
