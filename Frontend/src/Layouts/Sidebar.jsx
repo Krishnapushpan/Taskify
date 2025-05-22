@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import {
   FaTachometerAlt,
   FaFileAlt,
@@ -29,15 +30,31 @@ const Sidebar = ({ onItemClick }) => {
     setUserRole(getUserRole());
   }, []);
 
-  const handleLogout = () => {
-    // Use logout utility
-    logout(() => {
-      // Navigate to login page
-      navigate("/", { replace: true });
+  const handleLogout = async () => {
+    try {
+      // Call the backend logout endpoint
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/users/logout`, {}, {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
 
-      // Force page refresh to clear React Router's internal history
-      window.location.reload();
-    });
+      // Use logout utility to clear local storage
+      logout(() => {
+        // Navigate to login page
+        navigate("/", { replace: true });
+        // Force page refresh to clear React Router's internal history
+        window.location.reload();
+      });
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Even if the backend call fails, still clear local storage and redirect
+      logout(() => {
+        navigate("/", { replace: true });
+        window.location.reload();
+      });
+    }
   };
 
   return (

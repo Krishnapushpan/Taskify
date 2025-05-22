@@ -10,6 +10,7 @@ import {
   getUserCounts,
   updateUser,
   deleteUser,
+  logoutUser
 } from "../controllers/UsersController.js";
 
 const router = express.Router();
@@ -19,6 +20,9 @@ router.post("/register", registerUser);
 
 // Login route
 router.post("/login", loginUser);
+
+// Logout route
+router.post("/logout", logoutUser);
 
 // Create user route (for admin)
 router.post("/create", createUser);

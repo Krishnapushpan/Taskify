@@ -87,11 +87,13 @@ export const loginUser = async (req, res) => {
     );
 
     // Set cookie
-    // res.cookie("Authtoken", token);
     res.cookie("Authtoken", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "None",
+      secure: true,
+      sameSite: "none",
+      path: "/",
+      maxAge: 3600000, // 1 hour in milliseconds
+      domain: process.env.NODE_ENV === "production" ? ".vercel.app" : undefined
     });
     
 
@@ -283,5 +285,24 @@ export const deleteUser = async (req, res) => {
     res.status(200).json({ message: "User deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: "Failed to delete user", error: error.message });
+  }
+};
+
+// Logout user
+export const logoutUser = async (req, res) => {
+  try {
+    // Clear the auth cookie
+    res.clearCookie("Authtoken", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      path: "/",
+      domain: process.env.NODE_ENV === "production" ? ".vercel.app" : undefined
+    });
+
+    res.json({ message: "Logged out successfully" });
+  } catch (error) {
+    console.error("Logout error:", error);
+    res.status(500).json({ error: "Logout failed" });
   }
 };
