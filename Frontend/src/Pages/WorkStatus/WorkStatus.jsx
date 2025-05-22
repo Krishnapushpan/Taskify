@@ -12,7 +12,7 @@ const WorkStatus = () => {
     const fetchWorks = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`/api/works?teamLead=${userId}`, { withCredentials: true });
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/works?teamLead=${userId}`, { withCredentials: true });
         setWorks(response.data);
       } catch (err) {
         setWorks([]);

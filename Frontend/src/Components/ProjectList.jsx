@@ -31,14 +31,14 @@ const ProjectList = () => {
 
         if (userData?.role === "admin") {
           // Admin: fetch all assignments
-          response = await axios.get("/api/teams/all", {
+          response = await axios.get(`${import.meta.env.VITE_API_URL}/api/teams/all`, {
             withCredentials: true,
           });
         } else {
           // Others: fetch only relevant assignments
           const userId = userData?.userid;
           response = await axios.get(
-            `/api/teams/user-assignments?userId=${userId}`,
+            `${import.meta.env.VITE_API_URL}/api/teams/user-assignments?userId=${userId}`,
             { withCredentials: true }
           );
         }
@@ -83,13 +83,13 @@ const ProjectList = () => {
     try {
       const userData = JSON.parse(localStorage.getItem("user"));
       let response;
-
+      console.log("try",userData.role)
       if (userData?.role === "admin") {
-        response = await axios.get("/api/teams/all", { withCredentials: true });
+        response = await axios.get(`${import.meta.env.VITE_API_URL}/api/teams/all`, { withCredentials: true });
       } else {
         const userId = userData?.userid;
         response = await axios.get(
-          `/api/teams/user-assignments?userId=${userId}`,
+          `${import.meta.env.VITE_API_URL}/api/teams/user-assignments?userId=${userId}`,
           { withCredentials: true }
         );
       }
@@ -121,7 +121,7 @@ const ProjectList = () => {
   const handleStatusChange = async (assignmentId, newStatus) => {
     try {
       await axios.patch(
-        `/api/teams/${assignmentId}/status`,
+        `${import.meta.env.VITE_API_URL}/api/teams/${assignmentId}/status`,
         { status: newStatus },
         { withCredentials: true }
       );

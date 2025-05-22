@@ -43,7 +43,7 @@ const CreateUser = () => {
     }
 
     try {
-      const response = await axios.post('/api/users/create', form, {
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/users/create`, form, {
         withCredentials: true
       });
 

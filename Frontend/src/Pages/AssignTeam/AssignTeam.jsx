@@ -35,7 +35,7 @@ const AssignTeam = () => {
 
         // Get project data with any existing team assignment
         const projectResponse = await axios.get(
-          `/api/projects/${projectId}/with-team`,
+          `${import.meta.env.VITE_API_URL}/api/projects/${projectId}/with-team`,
           {
             withCredentials: true,
           }
@@ -64,7 +64,7 @@ const AssignTeam = () => {
         }
 
         // Fetch team leads
-        const leadsResponse = await axios.get("/api/users/team-leads", {
+        const leadsResponse = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/team-leads`, {
           withCredentials: true,
         });
 
@@ -80,7 +80,7 @@ const AssignTeam = () => {
         }
 
         // Fetch team members
-        const membersResponse = await axios.get("/api/users/team-members", {
+        const membersResponse = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/team-members`, {
           withCredentials: true,
         });
 
@@ -98,7 +98,7 @@ const AssignTeam = () => {
         }
 
         // Fetch students
-        const studentsResponse = await axios.get("/api/users/students", {
+        const studentsResponse = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/students`, {
           withCredentials: true,
         });
 
@@ -189,7 +189,7 @@ const AssignTeam = () => {
 
       console.log("Sending assignment data:", assignmentData);
 
-      const response = await axios.post("/api/teams/assign", assignmentData, {
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/teams/assign`, assignmentData, {
         withCredentials: true,
       });
 

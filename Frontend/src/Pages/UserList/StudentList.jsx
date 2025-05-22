@@ -24,7 +24,7 @@ const StudentList = () => {
   const fetchStudents = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("/api/users/students", {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/students`, {
         withCredentials: true,
       });
       setStudents(response.data.students);
@@ -46,7 +46,7 @@ const StudentList = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this student?")) {
       try {
-        await axios.delete(`/api/users/${id}`, { withCredentials: true });
+        await axios.delete(`${import.meta.env.VITE_API_URL}/api/users/${id}`, { withCredentials: true });
         setStudents(students.filter((student) => student._id !== id));
         setError(""); // Clear any existing errors
       } catch (error) {
@@ -63,7 +63,7 @@ const StudentList = () => {
   const handleModalSave = async () => {
     try {
       // Add update API call here when implemented
-      // await axios.put(`/api/users/${editStudent._id}`, editStudent);
+      // await axios.put(`${import.meta.env.VITE_API_URL}/api/users/${editStudent._id}`, editStudent);
       setStudents(
         students.map((s) => (s._id === editStudent._id ? editStudent : s))
       );

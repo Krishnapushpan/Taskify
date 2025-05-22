@@ -21,7 +21,7 @@ const PersonalWork = () => {
         const userId = userData?.userid;
         console.log("try", userId);
         // Adjust the endpoint to your actual API for fetching personal work
-        const response = await axios.get(`/api/works/personal?userId=${userId}`, { withCredentials: true });
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/works/personal?userId=${userId}`, { withCredentials: true });
         setWorks(response.data);
         console.log("response", response.data);
       } catch (err) {
@@ -48,7 +48,7 @@ const PersonalWork = () => {
 
   const handleStatusChange = async (workId, newStatus) => {
     try {
-      await axios.put(`/api/works/${workId}/status`, { status: newStatus }, { withCredentials: true });
+      await axios.put(`${import.meta.env.VITE_API_URL}/api/works/${workId}/status`, { status: newStatus }, { withCredentials: true });
       setWorks((prev) =>
         prev.map((w) =>
           w._id === workId

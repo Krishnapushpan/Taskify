@@ -79,7 +79,7 @@ const AssignWork = () => {
         let projectData = null;
         try {
           const projectResponse = await axios.get(
-            `/api/projects/${projectId}/with-team`,
+            `${import.meta.env.VITE_API_URL}/api/projects/${projectId}/with-team`,
             { withCredentials: true }
           );
           projectData = projectResponse.data?.project || projectResponse.data;
@@ -99,7 +99,7 @@ const AssignWork = () => {
           if (!project || !project.projectName) {
             try {
               const basicProjectResponse = await axios.get(
-                `/api/projects/${projectId}`,
+                `${import.meta.env.VITE_API_URL}/api/projects/${projectId}`,
                 { withCredentials: true }
               );
               projectData =
@@ -113,7 +113,7 @@ const AssignWork = () => {
 
         // Fetch team members
         try {
-          const membersResponse = await axios.get("/api/users/team-members", {
+          const membersResponse = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/team-members`, {
             withCredentials: true,
           });
 
@@ -128,7 +128,7 @@ const AssignWork = () => {
 
           // Fallback: try to get all users and filter by role
           try {
-            const allUsersResponse = await axios.get("/api/users", {
+            const allUsersResponse = await axios.get(`${import.meta.env.VITE_API_URL}/api/users`, {
               withCredentials: true,
             });
             const allUsers =
@@ -153,7 +153,7 @@ const AssignWork = () => {
 
         // Fetch students
         try {
-          const studentsResponse = await axios.get("/api/users/students", {
+          const studentsResponse = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/students`, {
             withCredentials: true,
           });
 
@@ -167,7 +167,7 @@ const AssignWork = () => {
           console.warn("Failed to fetch students:", err);
 
           try {
-            const allUsersResponse = await axios.get("/api/users", {
+            const allUsersResponse = await axios.get(`${import.meta.env.VITE_API_URL}/api/users`, {
               withCredentials: true,
             });
             const allUsers =
@@ -214,7 +214,7 @@ const AssignWork = () => {
 
       try {
         const response = await axios.get(
-          `/api/assignments/project/${projectId}`,
+          `${import.meta.env.VITE_API_URL}/api/assignments/project/${projectId}`,
           {
             withCredentials: true,
           }
@@ -340,7 +340,7 @@ const AssignWork = () => {
           assignmentData.priority = assignment.priority;
         }
 
-        return axios.post("/api/works/create", assignmentData, {
+        return axios.post(`${import.meta.env.VITE_API_URL}/api/works/create`, assignmentData, {
           withCredentials: true,
         });
       });

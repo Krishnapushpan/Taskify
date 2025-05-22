@@ -24,7 +24,7 @@ const ClientList = () => {
   const fetchClients = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("/api/users/clients", {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/clients`, {
         withCredentials: true,
       });
       setClients(response.data.clients);
@@ -46,7 +46,7 @@ const ClientList = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this client?")) {
       try {
-        await axios.delete(`/api/users/${id}`, { withCredentials: true });
+        await axios.delete(`${import.meta.env.VITE_API_URL}/api/users/${id}`, { withCredentials: true });
         setClients(clients.filter((client) => client._id !== id));
         setError(""); // Clear any existing errors
       } catch (error) {
@@ -63,7 +63,7 @@ const ClientList = () => {
   const handleModalSave = async () => {
     try {
       console.log("Updating client with ID:", editClient._id, editClient);
-      await axios.put(`/api/users/${editClient._id}`, editClient, {
+      await axios.put(`${import.meta.env.VITE_API_URL}/api/users/${editClient._id}`, editClient, {
         withCredentials: true,
       });
       setClients(

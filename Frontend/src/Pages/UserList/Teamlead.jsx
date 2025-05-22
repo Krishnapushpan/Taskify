@@ -24,7 +24,7 @@ const Teamlead = () => {
   const fetchTeamLeads = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("/api/users/team-leads", {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/team-leads`, {
         withCredentials: true,
       });
       setTeamLeads(response.data.teamLeads);
@@ -46,7 +46,7 @@ const Teamlead = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this team lead?")) {
       try {
-        await axios.delete(`/api/users/${id}`, { withCredentials: true });
+        await axios.delete(`${import.meta.env.VITE_API_URL}/api/users/${id}`, { withCredentials: true });
         setTeamLeads(teamLeads.filter((lead) => lead._id !== id));
         setError(""); // Clear any existing errors
       } catch (error) {
@@ -63,7 +63,7 @@ const Teamlead = () => {
   const handleModalSave = async () => {
     try {
       // Add update API call here when implemented
-      // await axios.put(`/api/users/${editLead._id}`, editLead);
+      // await axios.put(`${import.meta.env.VITE_API_URL}/api/users/${editLead._id}`, editLead);
       setTeamLeads(
         teamLeads.map((l) => (l._id === editLead._id ? editLead : l))
       );

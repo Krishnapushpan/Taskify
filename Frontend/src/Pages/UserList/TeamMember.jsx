@@ -24,7 +24,7 @@ const TeamMember = () => {
   const fetchTeamMembers = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("/api/users/team-members", {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/team-members`, {
         withCredentials: true,
       });
       setTeamMembers(response.data.teamMembers);
@@ -46,7 +46,7 @@ const TeamMember = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this team member?")) {
       try {
-        await axios.delete(`/api/users/${id}`, { withCredentials: true });
+        await axios.delete(`${import.meta.env.VITE_API_URL}/api/users/${id}`, { withCredentials: true });
         setTeamMembers(teamMembers.filter((member) => member._id !== id));
         setError(""); // Clear any existing errors
       } catch (error) {
@@ -63,7 +63,7 @@ const TeamMember = () => {
   const handleModalSave = async () => {
     try {
       // Add update API call here when implemented
-      // await axios.put(`/api/users/${editMember._id}`, editMember);
+      // await axios.put(`${import.meta.env.VITE_API_URL}/api/users/${editMember._id}`, editMember);
       setTeamMembers(
         teamMembers.map((m) => (m._id === editMember._id ? editMember : m))
       );

@@ -28,12 +28,12 @@ const WorkCount = ({ userId }) => {
 
         // If userId is provided, fetch counts for that specific user
         if (userId) {
-          response = await axios.get(`/api/work/user/${userId}/counts`, {
+          response = await axios.get(`${import.meta.env.VITE_API_URL}/api/work/user/${userId}/counts`, {
             withCredentials: true,
           });
         } else {
           // Otherwise fetch global counts (for admin dashboard)
-          response = await axios.get("/api/work/counts", {
+          response = await axios.get(`${import.meta.env.VITE_API_URL}/api/work/counts`, {
             withCredentials: true,
           });
         }

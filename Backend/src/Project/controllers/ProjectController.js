@@ -15,7 +15,7 @@ export const createProject = async (req, res) => {
     ) {
       return res.status(403).json({ message: "Access denied" });
     } else {
-      console.log("Creating project with user ID:", req.userId);
+      console.log("Creating project with user ID:", req.userid);
 
       // Create new project
       const newProject = new Project({

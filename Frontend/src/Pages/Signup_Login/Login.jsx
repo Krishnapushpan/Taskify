@@ -24,7 +24,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("/api/users/login", {
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/users/login`, {
         email: form.email,
         password: form.password,
       });
@@ -61,7 +61,7 @@ const Login = () => {
               but the majority in some form
             </div>
             {/* <div className="login-info-profile">
-              <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="profile" className="login-info-avatar" />
+              <img src="https://randomuser.me${import.meta.env.VITE_API_URL}/api/portraits/men/32.jpg" alt="profile" className="login-info-avatar" />
               <div>
                 <div className="login-info-name">Timson K</div>
                 <div className="login-info-role">Freelancer</div>

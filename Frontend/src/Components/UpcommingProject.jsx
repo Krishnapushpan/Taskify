@@ -23,7 +23,7 @@ const UpcomingProject = () => {
   const fetchProjects = async () => {
     try {
       setIsLoading(true);
-      const response = await axios.get("/api/projects/all", {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/projects/all`, {
         withCredentials: true,
       });
 

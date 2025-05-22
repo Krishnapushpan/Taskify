@@ -16,7 +16,7 @@ const CountUsers = () => {
     const fetchCounts = async () => {
       try {
         setLoading(true);
-        const response = await axios.get("/api/users/counts", {
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/counts`, {
           withCredentials: true,
         });
 

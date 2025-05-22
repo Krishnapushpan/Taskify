@@ -21,7 +21,7 @@ const ViewMoreProjects = () => {
     const fetchProjects = async () => {
       try {
         setLoading(true);
-        const response = await axios.get("/api/projects/all", {
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/projects/all`, {
           withCredentials: true,
         });
 
@@ -48,7 +48,7 @@ const ViewMoreProjects = () => {
 
     const fetchAssignedProjects = async () => {
       try {
-        const response = await axios.get("/api/teams/all", { withCredentials: true });
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/teams/all`, { withCredentials: true });
         // Extract project IDs from assignments
         const ids = response.data.map(a => a.project?._id || a.project);
         setAssignedProjectIds(ids);

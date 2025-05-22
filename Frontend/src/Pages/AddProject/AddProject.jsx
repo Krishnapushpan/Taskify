@@ -51,7 +51,7 @@ const AddProject = () => {
       console.log("Sending project data:", projectData);
 
       // Send data to backend API
-      const response = await axios.post("/api/projects/create", projectData, {
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/projects/create`, projectData, {
         withCredentials: true, // This will send cookies automatically
         headers: {
           "Content-Type": "application/json",
