@@ -35,8 +35,10 @@ export const assignTeam = async (req, res) => {
       existingAssignment.teamMembers =
         teamMemberIds || existingAssignment.teamMembers;
       existingAssignment.students = studentIds || existingAssignment.students;
-      if (req.body.projectName) existingAssignment.projectName = req.body.projectName;
-      if (req.body.description) existingAssignment.description = req.body.description;
+      if (req.body.projectName)
+        existingAssignment.projectName = req.body.projectName;
+      if (req.body.description)
+        existingAssignment.description = req.body.description;
       if (req.body.startDate) existingAssignment.startDate = req.body.startDate;
       if (req.body.dueDate) existingAssignment.dueDate = req.body.dueDate;
 
@@ -149,7 +151,9 @@ export const updateAssignmentStatus = async (req, res) => {
     await assignment.save();
     res.status(200).json({ message: "Status updated", assignment });
   } catch (error) {
-    res.status(500).json({ message: "Failed to update status", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Failed to update status", error: error.message });
   }
 };
 
@@ -167,8 +171,8 @@ export const getUserAssignments = async (req, res) => {
       $or: [
         { teamLead: userId },
         { teamMembers: userId },
-        { students: userId }
-      ]
+        { students: userId },
+      ],
     })
       .populate("project", "projectName description startDate endDate budget")
       .populate("teamLead", "fullName email role position")

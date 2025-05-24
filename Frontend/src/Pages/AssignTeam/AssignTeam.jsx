@@ -64,9 +64,12 @@ const AssignTeam = () => {
         }
 
         // Fetch team leads
-        const leadsResponse = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/team-leads`, {
-          withCredentials: true,
-        });
+        const leadsResponse = await axios.get(
+          `${import.meta.env.VITE_API_URL}/api/users/team-leads`,
+          {
+            withCredentials: true,
+          }
+        );
 
         if (leadsResponse.data && leadsResponse.data.teamLeads) {
           const formattedLeads = leadsResponse.data.teamLeads.map((lead) => ({
@@ -80,9 +83,12 @@ const AssignTeam = () => {
         }
 
         // Fetch team members
-        const membersResponse = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/team-members`, {
-          withCredentials: true,
-        });
+        const membersResponse = await axios.get(
+          `${import.meta.env.VITE_API_URL}/api/users/team-members`,
+          {
+            withCredentials: true,
+          }
+        );
 
         if (membersResponse.data && membersResponse.data.teamMembers) {
           const formattedMembers = membersResponse.data.teamMembers.map(
@@ -98,9 +104,12 @@ const AssignTeam = () => {
         }
 
         // Fetch students
-        const studentsResponse = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/students`, {
-          withCredentials: true,
-        });
+        const studentsResponse = await axios.get(
+          `${import.meta.env.VITE_API_URL}/api/users/students`,
+          {
+            withCredentials: true,
+          }
+        );
 
         if (studentsResponse.data && studentsResponse.data.students) {
           const formattedStudents = studentsResponse.data.students.map(
@@ -189,9 +198,13 @@ const AssignTeam = () => {
 
       console.log("Sending assignment data:", assignmentData);
 
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/teams/assign`, assignmentData, {
-        withCredentials: true,
-      });
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/teams/assign`,
+        assignmentData,
+        {
+          withCredentials: true,
+        }
+      );
 
       console.log("Assignment response:", response.data);
 
@@ -385,7 +398,9 @@ const AssignTeam = () => {
                         <li
                           key={member.id}
                           className={`team-member-item ${
-                            selectedTeamMembers.includes(member.id) ? "selected" : ""
+                            selectedTeamMembers.includes(member.id)
+                              ? "selected"
+                              : ""
                           }`}
                         >
                           <input
@@ -431,7 +446,9 @@ const AssignTeam = () => {
                         <li
                           key={student.id}
                           className={`team-member-item ${
-                            selectedStudents.includes(student.id) ? "selected" : ""
+                            selectedStudents.includes(student.id)
+                              ? "selected"
+                              : ""
                           }`}
                         >
                           <input

@@ -59,10 +59,10 @@ const AdminDashBoard = () => {
   };
 
   // Check if user is team member or student with more flexible role checking
-  const isTeamMemberOrStudent = 
-    userRole === "Team Member" || 
+  const isTeamMemberOrStudent =
+    userRole === "Team Member" ||
     userRole === "Student" ||
-    userRole === "team_member" || 
+    userRole === "team_member" ||
     userRole === "student" ||
     userRole === "TeamMember" ||
     userRole === "teamMember";
@@ -80,6 +80,14 @@ const AdminDashBoard = () => {
     userRole === "Team Lead" ||
     userRole === "team_lead" ||
     userRole === "teamLead";
+
+  const isAdminOrClient =
+    userRole === "Admin" ||
+    userRole === "admin" ||
+    userRole === "Client" ||
+    userRole === "client";
+
+  const isTeamMemberOrStudentOrTeamLead = isTeamMemberOrStudent || isTeamLead;
 
   console.log("Current userRole:", userRole); // Debug log
   console.log("isTeamMemberOrStudent:", isTeamMemberOrStudent); // Debug log
@@ -128,12 +136,12 @@ const AdminDashBoard = () => {
             >
               Welcome!
             </h1>
-            {isAdminOrClientOrTeamLead && <CountUsers />}
-            {isTeamMemberOrStudent && <WorkCount />}
+            {isAdminOrClient && <CountUsers />}
+            {isTeamMemberOrStudentOrTeamLead && <WorkCount />}
             <div style={{ marginTop: "20px" }}>
               <UpcommingProject />
             </div>
-           
+
             <div style={{ marginTop: "20px" }}>
               <ProjectList />
             </div>

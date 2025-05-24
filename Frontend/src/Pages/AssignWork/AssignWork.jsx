@@ -79,7 +79,9 @@ const AssignWork = () => {
         let projectData = null;
         try {
           const projectResponse = await axios.get(
-            `${import.meta.env.VITE_API_URL}/api/projects/${projectId}/with-team`,
+            `${
+              import.meta.env.VITE_API_URL
+            }/api/projects/${projectId}/with-team`,
             { withCredentials: true }
           );
           projectData = projectResponse.data?.project || projectResponse.data;
@@ -113,9 +115,12 @@ const AssignWork = () => {
 
         // Fetch team members
         try {
-          const membersResponse = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/team-members`, {
-            withCredentials: true,
-          });
+          const membersResponse = await axios.get(
+            `${import.meta.env.VITE_API_URL}/api/users/team-members`,
+            {
+              withCredentials: true,
+            }
+          );
 
           const members =
             membersResponse.data?.teamMembers ||
@@ -128,9 +133,12 @@ const AssignWork = () => {
 
           // Fallback: try to get all users and filter by role
           try {
-            const allUsersResponse = await axios.get(`${import.meta.env.VITE_API_URL}/api/users`, {
-              withCredentials: true,
-            });
+            const allUsersResponse = await axios.get(
+              `${import.meta.env.VITE_API_URL}/api/users`,
+              {
+                withCredentials: true,
+              }
+            );
             const allUsers =
               allUsersResponse.data?.users ||
               allUsersResponse.data?.data ||
@@ -153,9 +161,12 @@ const AssignWork = () => {
 
         // Fetch students
         try {
-          const studentsResponse = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/students`, {
-            withCredentials: true,
-          });
+          const studentsResponse = await axios.get(
+            `${import.meta.env.VITE_API_URL}/api/users/students`,
+            {
+              withCredentials: true,
+            }
+          );
 
           const students =
             studentsResponse.data?.students ||
@@ -167,9 +178,12 @@ const AssignWork = () => {
           console.warn("Failed to fetch students:", err);
 
           try {
-            const allUsersResponse = await axios.get(`${import.meta.env.VITE_API_URL}/api/users`, {
-              withCredentials: true,
-            });
+            const allUsersResponse = await axios.get(
+              `${import.meta.env.VITE_API_URL}/api/users`,
+              {
+                withCredentials: true,
+              }
+            );
             const allUsers =
               allUsersResponse.data?.users ||
               allUsersResponse.data?.data ||
@@ -214,7 +228,9 @@ const AssignWork = () => {
 
       try {
         const response = await axios.get(
-          `${import.meta.env.VITE_API_URL}/api/assignments/project/${projectId}`,
+          `${
+            import.meta.env.VITE_API_URL
+          }/api/assignments/project/${projectId}`,
           {
             withCredentials: true,
           }
@@ -340,9 +356,13 @@ const AssignWork = () => {
           assignmentData.priority = assignment.priority;
         }
 
-        return axios.post(`${import.meta.env.VITE_API_URL}/api/works/create`, assignmentData, {
-          withCredentials: true,
-        });
+        return axios.post(
+          `${import.meta.env.VITE_API_URL}/api/works/create`,
+          assignmentData,
+          {
+            withCredentials: true,
+          }
+        );
       });
 
       const results = await Promise.all(promises);
