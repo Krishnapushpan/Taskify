@@ -4,7 +4,9 @@ import {
   getTeamByProject,
   getAllTeamAssignments,
   updateAssignmentStatus,
-  getUserAssignments
+  getUserAssignments,
+  getAssignmentsByProjectCreator,
+  searchAssignmentsByProjectName
 } from "../controllers/AssignTeamController.js";
 import { verifyToken } from "../../Middleware/auth.js";
 
@@ -24,5 +26,11 @@ router.patch('/:id/status', updateAssignmentStatus);
 
 // Get assignments relevant to a specific user
 router.get('/user-assignments', getUserAssignments);
+
+// Get assignments for projects created by a specific user (client)
+router.get('/by-project-creator', getAssignmentsByProjectCreator);
+
+// Search assignments for projects created by a client and project name
+router.get('/search-by-project-name', searchAssignmentsByProjectName);
 
 export default router;

@@ -66,6 +66,7 @@ export const assignTeam = async (req, res) => {
         description: req.body.description,
         startDate: req.body.startDate,
         dueDate: req.body.dueDate,
+        projectCreator: project.addedBy,
       });
 
       await newAssignment.save();
@@ -181,6 +182,58 @@ export const getUserAssignments = async (req, res) => {
     console.error("Get user assignments error:", error);
     res.status(500).json({
       message: "Failed to get user assignments",
+      error: error.message,
+    });
+  }
+};
+
+// Get assignments for projects created by a specific user (projectCreator)
+export const getAssignmentsByProjectCreator = async (req, res) => {
+  try {
+    const { creatorId } = req.query;
+    if (!creatorId) {
+      return res.status(400).json({ message: "Creator ID is required" });
+    }
+
+    const assignments = await AssignTeam.find({ projectCreator: creatorId })
+      .populate("project", "projectName description startDate endDate budget")
+      .populate("teamLead", "fullName email role position")
+      .populate("teamMembers", "fullName email role position")
+      .populate("students", "fullName email role")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json(assignments);
+  } catch (error) {
+    console.error("Get assignments by project creator error:", error);
+    res.status(500).json({
+      message: "Failed to get assignments by project creator",
+      error: error.message,
+    });
+  }
+};
+
+// Search assignments by project name (case-insensitive, no creatorId)
+export const searchAssignmentsByProjectName = async (req, res) => {
+  try {
+    const { projectName } = req.query;
+    if (!projectName) {
+      return res.status(400).json({ message: "Project name is required" });
+    }
+
+    const assignments = await AssignTeam.find({
+      projectName: { $regex: new RegExp(projectName, 'i') }
+    })
+      .populate("project", "projectName description startDate endDate budget")
+      .populate("teamLead", "fullName email role position")
+      .populate("teamMembers", "fullName email role position")
+      .populate("students", "fullName email role")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json(assignments);
+  } catch (error) {
+    console.error("Search assignments by project name error:", error);
+    res.status(500).json({
+      message: "Failed to search assignments by project name",
       error: error.message,
     });
   }
