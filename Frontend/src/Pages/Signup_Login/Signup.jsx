@@ -24,6 +24,10 @@ const Signup = () => {
     }
   };
 
+  const handleSignIn = () => {
+    navigate("/login");
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -129,7 +133,7 @@ const Signup = () => {
           </form>
           <div className="login-signup-row">
             <span>Already have an account?</span>
-            <a href="/login" className="login-signup-link">Sign In</a>
+            <button className="login-signup-link" onClick={handleSignIn}>Sign In</button>
           </div>
         </div>
       </div>

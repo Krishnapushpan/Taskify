@@ -22,7 +22,11 @@ const projectSchema = new mongoose.Schema({
     required: true,
     min: 0,
   },
-
+  addedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
   createdAt: {
     type: Date,
     default: Date.now,

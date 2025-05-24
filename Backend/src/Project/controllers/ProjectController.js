@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 // Create a new project
 export const createProject = async (req, res) => {
   try {
-    const { projectName, description, startDate, endDate, budget } = req.body;
+    const { projectName, description, startDate, endDate, budget, addedBy } = req.body;
     const role = req.role;
 
     if (
@@ -24,7 +24,7 @@ export const createProject = async (req, res) => {
         startDate,
         endDate,
         budget,
-        createdBy: req.userId, // Get userId from auth middleware
+        addedBy: addedBy || req.userId, // Use addedBy from request or fallback to userId from auth
       });
 
       // Save project to database

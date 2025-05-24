@@ -11,7 +11,7 @@ const AddProject = () => {
     description: "",
     startDate: null,
     endDate: null,
-    budget: "",
+    budget: ""
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -39,6 +39,12 @@ const AddProject = () => {
     }
 
     try {
+      // Get user data from localStorage
+      const userData = JSON.parse(localStorage.getItem("user"));
+      if (!userData || !userData.userid) {
+        throw new Error("User not authenticated");
+      }
+
       // Convert form data for API
       const projectData = {
         projectName: form.projectName,
@@ -46,13 +52,14 @@ const AddProject = () => {
         startDate: form.startDate.toISOString(),
         endDate: form.endDate.toISOString(),
         budget: Number(form.budget),
+        addedBy: userData.userid
       };
 
       console.log("Sending project data:", projectData);
 
       // Send data to backend API
       const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/projects/create`, projectData, {
-        withCredentials: true, // This will send cookies automatically
+        withCredentials: true,
         headers: {
           "Content-Type": "application/json",
         },
@@ -66,15 +73,13 @@ const AddProject = () => {
           description: "",
           startDate: null,
           endDate: null,
-          budget: "",
+          budget: ""
         });
       }
     } catch (error) {
       console.error("Project creation error:", error);
 
       if (error.response) {
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx
         setError(
           error.response.data?.message ||
             error.response.data?.error ||
@@ -82,13 +87,11 @@ const AddProject = () => {
         );
         console.log("Error response:", error.response.data);
       } else if (error.request) {
-        // The request was made but no response was received
         setError(
           "No response from server. Please check your network connection."
         );
         console.log("Error request:", error.request);
       } else {
-        // Something happened in setting up the request that triggered an Error
         setError("Error: " + error.message);
       }
     } finally {
@@ -155,7 +158,7 @@ const AddProject = () => {
                 onChange={(date) => handleDateChange(date, "endDate")}
                 dateFormat="MMMM d, yyyy"
                 placeholderText="Select end date"
-                minDate={form.startDate} // Ensures end date is after start date
+                minDate={form.startDate}
                 required
                 showPopperArrow={false}
                 calendarIconClassName="datepicker-calendar-icon"

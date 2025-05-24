@@ -16,7 +16,7 @@ const router = express.Router();
 router.post("/create", verifyToken, createProject);
 
 // Get all projects (temporarily removed auth for testing)
-router.get("/all", getAllProjects);
+router.get("/all", verifyToken, getAllProjects);
 
 // Get project by ID (requires authentication)
 router.get("/:id", verifyToken, getProjectById);

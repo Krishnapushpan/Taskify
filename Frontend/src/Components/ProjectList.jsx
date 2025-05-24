@@ -20,6 +20,7 @@ const ProjectList = () => {
   const [statusUpdate, setStatusUpdate] = useState("");
   const [user, setUser] = useState(null);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -36,6 +37,15 @@ const ProjectList = () => {
             {
               withCredentials: true,
             }
+          );
+          response = await axios.get(`${import.meta.env.VITE_API_URL}/api/teams/all`, {
+            withCredentials: true,
+          });
+        } else if (userData?.role === "Client") {
+          // Client: fetch assignments for projects created by this client
+          response = await axios.get(
+            `${import.meta.env.VITE_API_URL}/api/teams/by-project-creator?creatorId=${userData.userid}`,
+            { withCredentials: true }
           );
         } else {
           // Others: fetch only relevant assignments
@@ -152,6 +162,23 @@ const ProjectList = () => {
     }
   };
 
+  // Search handler for clients
+  const handleSearch = async () => {
+    if (!searchTerm.trim()) return;
+    setIsLoading(true);
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/api/teams/search-by-project-name?projectName=${encodeURIComponent(searchTerm)}`,
+        { withCredentials: true }
+      );
+      setAssignments(response.data);
+    } catch (err) {
+      setAssignments([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   if (!isVisible) {
     return null;
   }
@@ -191,6 +218,22 @@ const ProjectList = () => {
           />
         </div>
       </div>
+
+      {/* Search box for clients */}
+      {user?.role === "Client" && (
+        <div style={{ marginBottom: "16px" }}>
+          <input
+            type="text"
+            placeholder="Search by project name"
+            value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
+            style={{ padding: "6px", marginRight: "8px" }}
+          />
+          <button onClick={handleSearch} style={{ padding: "6px 12px" }}>
+            Search
+          </button>
+        </div>
+      )}
 
       {isLoading ? (
         <div style={{ textAlign: "center", padding: "20px" }}>
