@@ -11,6 +11,8 @@ const PersonalWork = () => {
   const [works, setWorks] = useState([]);
   const [editingStatusId, setEditingStatusId] = useState(null);
   const [statusUpdate, setStatusUpdate] = useState("");
+  const [editingPercentageId, setEditingPercentageId] = useState(null);
+  const [percentageUpdate, setPercentageUpdate] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -62,6 +64,31 @@ const PersonalWork = () => {
     }
   };
 
+  const handleEditPercentageClick = (work) => {
+    setEditingPercentageId(work._id);
+    setPercentageUpdate(work.percentage || 0);
+  };
+
+  const handlePercentageChange = async (workId, newPercentage) => {
+    try {
+      await axios.patch(
+        `${import.meta.env.VITE_API_URL}/api/works/${workId}/percentage`,
+        { percentage: parseInt(newPercentage) },
+        { withCredentials: true }
+      );
+      setWorks((prev) =>
+        prev.map((w) =>
+          w._id === workId
+            ? { ...w, percentage: parseInt(newPercentage) }
+            : w
+        )
+      );
+      setEditingPercentageId(null);
+    } catch (err) {
+      alert("Failed to update percentage");
+    }
+  };
+
   if (loading) return <div>Loading...</div>;
 
   return (
@@ -77,7 +104,7 @@ const PersonalWork = () => {
             <th>Description</th>
             <th>Due Date</th>
             <th>Status</th>
-            <th>Edit</th>
+            <th>Progress</th>
           </tr>
         </thead>
         <tbody>
@@ -103,16 +130,46 @@ const PersonalWork = () => {
                     ))}
                   </select>
                 ) : (
-                  w.status || "N/A"
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    {w.status || "N/A"}
+                    <button
+                      className="status-edit-btn"
+                      onClick={() => handleEditClick(w)}
+                    >
+                      Edit
+                    </button>
+                  </div>
                 )}
               </td>
               <td>
-                <button
-                  className="status-edit-btn"
-                  onClick={() => handleEditClick(w)}
-                >
-                  Edit
-                </button>
+                {editingPercentageId === w._id ? (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={percentageUpdate}
+                      onChange={(e) => setPercentageUpdate(e.target.value)}
+                      style={{ width: '60px' }}
+                    />
+                    <button
+                      onClick={() => handlePercentageChange(w._id, percentageUpdate)}
+                      style={{ padding: '2px 8px' }}
+                    >
+                      Save
+                    </button>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    {w.percentage || 0}%
+                    <button
+                      className="status-edit-btn"
+                      onClick={() => handleEditPercentageClick(w)}
+                    >
+                      Edit
+                    </button>
+                  </div>
+                )}
               </td>
             </tr>
           ))}

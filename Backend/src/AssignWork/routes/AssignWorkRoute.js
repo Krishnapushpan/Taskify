@@ -7,7 +7,8 @@ import {
   deleteWorkAssignment,
   // getPersonalWork,
   getUserWorkAssignments,
-  getWorkAssignmentsByTeamLead
+  getWorkAssignmentsByTeamLead,
+  updateWorkAssignmentPercentage
 } from "../controllers/AssignWorkController.js";
 import { verifyToken } from "../../Middleware/auth.js";
 
@@ -41,5 +42,8 @@ router.get("/personal", getUserWorkAssignments);
 
 // Get work assignments by team lead (or all if no filter)
 router.get("/", getWorkAssignmentsByTeamLead);
+
+// Update work assignment percentage
+router.patch('/:id/percentage', verifyToken, updateWorkAssignmentPercentage);
 
 export default router;

@@ -76,7 +76,18 @@ const AdminDashBoard = () => {
     userRole === "team_lead" ||
     userRole === "teamLead";
 
+    const isAdmin = 
+    userRole === "Admin" ||
+    userRole === "admin";
+
   const isTeamLead =
+    userRole === "Team Lead" ||
+    userRole === "team_lead" ||
+    userRole === "teamLead";
+
+  const isAdminOrTeamLead =
+    userRole === "Admin" ||
+    userRole === "admin" ||
     userRole === "Team Lead" ||
     userRole === "team_lead" ||
     userRole === "teamLead";
@@ -137,7 +148,7 @@ const AdminDashBoard = () => {
             <div style={{ marginTop: "20px" }}>
               <ProjectList />
             </div>
-            {isTeamLead && (
+            {isAdminOrTeamLead && (
               <div style={{ marginTop: "20px" }}>
                 <WorkStatus />
               </div>

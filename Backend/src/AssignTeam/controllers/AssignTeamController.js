@@ -5,7 +5,7 @@ import User from "../../User/models/UsersModel.js";
 // Assign team members to a project
 export const assignTeam = async (req, res) => {
   try {
-    const { projectId, teamLeadId, teamMemberIds, studentIds } = req.body;
+    const { projectId, teamLeadId, teamMemberIds, studentIds, percentage } = req.body;
 
     // Validate project exists
     const project = await Project.findById(projectId);
@@ -26,6 +26,11 @@ export const assignTeam = async (req, res) => {
       }
     }
 
+    // Validate percentage if provided
+    if (percentage !== undefined && (percentage < 0 || percentage > 100)) {
+      return res.status(400).json({ message: "Percentage must be between 0 and 100" });
+    }
+
     // Check if an assignment already exists for this project
     const existingAssignment = await AssignTeam.findOne({ project: projectId });
 
@@ -39,6 +44,7 @@ export const assignTeam = async (req, res) => {
       if (req.body.description) existingAssignment.description = req.body.description;
       if (req.body.startDate) existingAssignment.startDate = req.body.startDate;
       if (req.body.dueDate) existingAssignment.dueDate = req.body.dueDate;
+      if (percentage !== undefined) existingAssignment.percentage = percentage;
 
       await existingAssignment.save();
 
@@ -67,6 +73,7 @@ export const assignTeam = async (req, res) => {
         startDate: req.body.startDate,
         dueDate: req.body.dueDate,
         projectCreator: project.addedBy,
+        percentage: percentage || 0
       });
 
       await newAssignment.save();
@@ -236,5 +243,51 @@ export const searchAssignmentsByProjectName = async (req, res) => {
       message: "Failed to search assignments by project name",
       error: error.message,
     });
+  }
+};
+
+// Update assignment percentage
+export const updateAssignmentPercentage = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { percentage } = req.body;
+
+    if (percentage < 0 || percentage > 100) {
+      return res.status(400).json({ message: "Percentage must be between 0 and 100" });
+    }
+
+    const assignment = await AssignTeam.findByIdAndUpdate(
+      id,
+      { $set: { percentage } },
+      { new: true, runValidators: true }
+    );
+
+    if (!assignment) {
+      return res.status(404).json({ message: "Assignment not found" });
+    }
+
+    res.status(200).json({ message: "Percentage updated", assignment });
+  } catch (error) {
+    console.error("Failed to update percentage:", error);
+    res.status(500).json({ message: "Failed to update percentage", error: error.message });
+  }
+};
+
+export const getAssignedUsersForProject = async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    console.log(projectId);
+    const assignment = await AssignTeam.findOne({ _id: projectId })
+      .populate('teamMembers', 'fullName email role position')
+      .populate('students', 'fullName email role');
+    if (!assignment) {
+      return res.status(404).json({ message: 'No assignment found for this project' });
+    }
+    res.status(200).json({
+      teamMembers: assignment.teamMembers,
+      students: assignment.students,
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to fetch assigned users', error: error.message });
   }
 };

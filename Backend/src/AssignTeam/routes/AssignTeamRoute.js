@@ -6,7 +6,9 @@ import {
   updateAssignmentStatus,
   getUserAssignments,
   getAssignmentsByProjectCreator,
-  searchAssignmentsByProjectName
+  searchAssignmentsByProjectName,
+  updateAssignmentPercentage,
+  getAssignedUsersForProject
 } from "../controllers/AssignTeamController.js";
 import { verifyToken } from "../../Middleware/auth.js";
 
@@ -32,5 +34,11 @@ router.get('/by-project-creator', getAssignmentsByProjectCreator);
 
 // Search assignments for projects created by a client and project name
 router.get('/search-by-project-name', searchAssignmentsByProjectName);
+
+// Update assignment percentage
+router.patch('/:id/percentage', verifyToken, updateAssignmentPercentage);
+
+// Get assigned users (team members and students) for a project
+router.get('/assigned-users/:projectId', getAssignedUsersForProject);
 
 export default router;

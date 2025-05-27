@@ -8,11 +8,17 @@ const WorkStatus = () => {
   useEffect(() => {
     const userData = JSON.parse(localStorage.getItem("user"));
     const userId = userData?.userid;
+    const role = userData?.role;
 
     const fetchWorks = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/works?teamLead=${userId}`, { withCredentials: true });
+        let response;
+        if (role === "Admin" || role === "admin") {
+          response = await axios.get(`${import.meta.env.VITE_API_URL}/api/works/all`, { withCredentials: true });
+        } else {
+          response = await axios.get(`${import.meta.env.VITE_API_URL}/api/works?teamLead=${userId}`, { withCredentials: true });
+        }
         setWorks(response.data);
       } catch (err) {
         setWorks([]);
@@ -46,6 +52,7 @@ const WorkStatus = () => {
             <th>Description</th>
             <th>Due Date</th>
             <th>Status</th>
+            <th>Progress</th>
             <th>Team Lead</th>
             <th>Team Members</th>
             <th>Students</th>
@@ -59,6 +66,7 @@ const WorkStatus = () => {
               <td>{w.workDescription}</td>
               <td>{formatDate(w.dueDate)}</td>
               <td>{w.status || "N/A"}</td>
+              <td>{w.percentage || 0}%</td>
               <td>{w.teamLead?.fullName || "N/A"}</td>
               <td>
                 {w.teamMembers && w.teamMembers.length > 0

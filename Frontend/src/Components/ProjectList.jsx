@@ -21,6 +21,8 @@ const ProjectList = () => {
   const [user, setUser] = useState(null);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [searchTerm, setSearchTerm] = useState("");
+  const [editingPercentageId, setEditingPercentageId] = useState(null);
+  const [percentageUpdate, setPercentageUpdate] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -166,6 +168,34 @@ const ProjectList = () => {
     }
   };
 
+  const handleEditPercentageClick = (assignment) => {
+    setEditingPercentageId(assignment._id);
+    setPercentageUpdate(assignment.percentage || 0);
+  };
+
+  const handlePercentageChange = async (assignmentId, newPercentage) => {
+    try {
+      await axios.patch(
+        `${import.meta.env.VITE_API_URL}/api/teams/${assignmentId}/percentage`,
+        { percentage: parseInt(newPercentage) },
+        { withCredentials: true }
+      );
+      setAssignments((prev) =>
+        prev.map((a) =>
+          a._id === assignmentId
+            ? {
+                ...a,
+                percentage: parseInt(newPercentage),
+              }
+            : a
+        )
+      );
+      setEditingPercentageId(null);
+    } catch (err) {
+      alert("Failed to update percentage");
+    }
+  };
+
   if (!isVisible) {
     return null;
   }
@@ -238,6 +268,7 @@ const ProjectList = () => {
                   <th>Start Date</th>
                   <th>Due Date</th>
                   <th>Status</th>
+                  <th>Progress</th>
                   {!isCompactView && <th>Team Lead</th>}
                   {!isCompactView && <th>Team Members</th>}
                   {!isCompactView && <th>Students</th>}
@@ -247,7 +278,7 @@ const ProjectList = () => {
                 {assignments.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={isCompactView ? 5 : 9}
+                      colSpan={isCompactView ? 6 : 10}
                       style={{ textAlign: "center" }}
                     >
                       No projects found
@@ -341,6 +372,38 @@ const ProjectList = () => {
                                 </>
                               )}
                             </>
+                          )}
+                        </td>
+                        <td>
+                          {editingPercentageId === a._id ? (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <input
+                                type="number"
+                                min="0"
+                                max="100"
+                                value={percentageUpdate}
+                                onChange={(e) => setPercentageUpdate(e.target.value)}
+                                style={{ width: '60px' }}
+                              />
+                              <button
+                                onClick={() => handlePercentageChange(a._id, percentageUpdate)}
+                                style={{ padding: '2px 8px' }}
+                              >
+                                Save
+                              </button>
+                            </div>
+                          ) : (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              {a.percentage || 0}%
+                              {isTeamLead && (
+                                <button
+                                  className="status-edit-btn"
+                                  onClick={() => handleEditPercentageClick(a)}
+                                >
+                                  Edit
+                                </button>
+                              )}
+                            </div>
                           )}
                         </td>
                         {!isCompactView && (

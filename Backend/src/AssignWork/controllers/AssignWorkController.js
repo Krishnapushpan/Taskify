@@ -13,6 +13,7 @@ export const createWorkAssignment = async (req, res) => {
       priority,
       status,
       teamLeadId,
+      percentage
     } = req.body;
 
     // Create assignment object with required fields
@@ -22,6 +23,7 @@ export const createWorkAssignment = async (req, res) => {
       workDescription,
       teamMembers: teamMemberIds,
       students: studentIds,
+      percentage: percentage || 0
     };
 
     // Add optional fields if they exist
@@ -64,6 +66,7 @@ export const getAllWorkAssignments = async (req, res) => {
     const assignments = await AssignWork.find()
       .populate("teamMembers", "fullName email role position")
       .populate("students", "fullName email role")
+      .populate("teamLead", "fullName email role position")
       .sort({ createdAt: -1 });
 
     res.status(200).json(assignments);
@@ -84,6 +87,7 @@ export const getWorkAssignmentsByProject = async (req, res) => {
     const assignments = await AssignWork.find({ projectId })
       .populate("teamMembers", "fullName email role position")
       .populate("students", "fullName email role")
+      .populate("teamLead", "fullName email role position")
       .sort({ createdAt: -1 });
 
     res.status(200).json(assignments);
@@ -195,6 +199,7 @@ export const getUserWorkAssignments = async (req, res) => {
       .populate("projectName", "projectName description startDate endDate")
       .populate("teamMembers", "fullName email role position")
       .populate("students", "fullName email role")
+      .populate("teamLead", "fullName email role position")
       .sort({ createdAt: -1 });
 
     res.status(200).json(assignments);
@@ -228,5 +233,27 @@ export const getWorkAssignmentsByTeamLead = async (req, res) => {
       message: "Failed to fetch work assignments by team lead",
       error: error.message,
     });
+  }
+};
+
+// Update only the percentage field
+export const updateWorkAssignmentPercentage = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { percentage } = req.body;
+    if (percentage < 0 || percentage > 100) {
+      return res.status(400).json({ message: "Percentage must be between 0 and 100" });
+    }
+    const assignment = await AssignWork.findByIdAndUpdate(
+      id,
+      { $set: { percentage } },
+      { new: true, runValidators: true }
+    );
+    if (!assignment) {
+      return res.status(404).json({ message: "Work assignment not found" });
+    }
+    res.status(200).json({ message: "Percentage updated", assignment });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to update percentage", error: error.message });
   }
 };

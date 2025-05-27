@@ -53,6 +53,12 @@ const assignWorkSchema = new mongoose.Schema({
     ref: "User",
     required: false,
   },
+  percentage: {
+    type: Number,
+    min: 0,
+    max: 100,
+    default: 0
+  },
 });
 
 const AssignWork = mongoose.model("AssignWork", assignWorkSchema);

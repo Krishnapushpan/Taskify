@@ -9,7 +9,7 @@ const assignTeamSchema = new mongoose.Schema({
   projectCreator: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
-    required: true
+    required: false
   },
   projectName: {
     type: String,
@@ -26,6 +26,12 @@ const assignTeamSchema = new mongoose.Schema({
   dueDate: {
     type: Date,
     required: false,
+  },
+  percentage: {
+    type: Number,
+    min: 0,
+    max: 100,
+    default: 0
   },
   status: {
     type: String,
