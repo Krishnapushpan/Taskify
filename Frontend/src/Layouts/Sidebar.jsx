@@ -95,26 +95,31 @@ const Sidebar = ({ onItemClick }) => {
             <span>Add Project</span>
           </li>
         )}
-        <li
-          onClick={() => {
-            setUserDropdownOpen((open) => !open);
-            onItemClick && onItemClick("Client List");
-          }}
-          style={{ color: userDropdownOpen ? "#64c5b1" : undefined }}
-        >
-          <FaUserShield className="sidebar-icon" />
-          <span>User List</span>
-          <span
-            className="sidebar-arrow"
-            style={{
-              transform: userDropdownOpen ? "rotate(90deg)" : "none",
-              color: userDropdownOpen ? "#64c5b1" : undefined,
-            }}
-          >
-            &#8250;
-          </span>
-        </li>
-        <Userdropdown visible={userDropdownOpen} onItemClick={onItemClick} />
+        {/* Hide User List for clients */}
+        {userRole !== "Client" && userRole !== "client" && (
+          <>
+            <li
+              onClick={() => {
+                setUserDropdownOpen((open) => !open);
+                onItemClick && onItemClick("Client List");
+              }}
+              style={{ color: userDropdownOpen ? "#64c5b1" : undefined }}
+            >
+              <FaUserShield className="sidebar-icon" />
+              <span>User List</span>
+              <span
+                className="sidebar-arrow"
+                style={{
+                  transform: userDropdownOpen ? "rotate(90deg)" : "none",
+                  color: userDropdownOpen ? "#64c5b1" : undefined,
+                }}
+              >
+                &#8250;
+              </span>
+            </li>
+            <Userdropdown visible={userDropdownOpen} onItemClick={onItemClick} />
+          </>
+        )}
       </ul>
       {/* Logout Button */}
       <div className="sidebar-footer">

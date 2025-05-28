@@ -147,11 +147,12 @@ const AdminDashBoard = () => {
             >
               Welcome!
             </h1>
-            {isAdminOrClient && <CountUsers />}
+            {isAdmin&& <CountUsers />}
             {isTeamMemberOrStudentOrTeamLead && <WorkCount />}
+            {isAdminOrTeamLead &&
             <div style={{ marginTop: "20px" }}>
               <UpcommingProject />
-            </div>
+            </div> }
 
             <div style={{ marginTop: "20px" }}>
               <ProjectList />
