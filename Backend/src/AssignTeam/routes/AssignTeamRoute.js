@@ -24,10 +24,10 @@ router.get("/project/:projectId", verifyToken, getTeamByProject);
 router.get("/all", verifyToken, getAllTeamAssignments);
 
 // Update assignment status
-router.patch('/:id/status', updateAssignmentStatus);
+router.patch("/:id/status", updateAssignmentStatus);
 
 // Get assignments relevant to a specific user
-router.get('/user-assignments', getUserAssignments);
+router.get("/user-assignments", getUserAssignments);
 
 // Get assignments for projects created by a specific user (client)
 router.get('/by-project-creator', getAssignmentsByProjectCreator);

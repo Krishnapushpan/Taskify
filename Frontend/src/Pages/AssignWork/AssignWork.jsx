@@ -79,7 +79,9 @@ const AssignWork = () => {
         let projectData = null;
         try {
           const projectResponse = await axios.get(
-            `${import.meta.env.VITE_API_URL}/api/projects/${projectId}/with-team`,
+            `${
+              import.meta.env.VITE_API_URL
+            }/api/projects/${projectId}/with-team`,
             { withCredentials: true }
           );
           projectData = projectResponse.data?.project || projectResponse.data;
@@ -113,6 +115,95 @@ const AssignWork = () => {
 
     
 
+        // Fetch team members
+        try {
+          const membersResponse = await axios.get(
+            `${import.meta.env.VITE_API_URL}/api/users/team-members`,
+            {
+              withCredentials: true,
+            }
+          );
+
+          const members =
+            membersResponse.data?.teamMembers ||
+            membersResponse.data?.data ||
+            membersResponse.data ||
+            [];
+          setTeamMembers(Array.isArray(members) ? members : []);
+        } catch (err) {
+          console.warn("Failed to fetch team members:", err);
+
+          // Fallback: try to get all users and filter by role
+          try {
+            const allUsersResponse = await axios.get(
+              `${import.meta.env.VITE_API_URL}/api/users`,
+              {
+                withCredentials: true,
+              }
+            );
+            const allUsers =
+              allUsersResponse.data?.users ||
+              allUsersResponse.data?.data ||
+              allUsersResponse.data ||
+              [];
+
+            const members = allUsers.filter(
+              (user) =>
+                user.role === "team_member" ||
+                user.role === "teamMember" ||
+                user.role === "developer" ||
+                user.position
+            );
+            setTeamMembers(members);
+          } catch (fallbackErr) {
+            console.error("Failed to fetch users as fallback:", fallbackErr);
+            setTeamMembers([]);
+          }
+        }
+
+        // Fetch students
+        try {
+          const studentsResponse = await axios.get(
+            `${import.meta.env.VITE_API_URL}/api/users/students`,
+            {
+              withCredentials: true,
+            }
+          );
+
+          const students =
+            studentsResponse.data?.students ||
+            studentsResponse.data?.data ||
+            studentsResponse.data ||
+            [];
+          setStudents(Array.isArray(students) ? students : []);
+        } catch (err) {
+          console.warn("Failed to fetch students:", err);
+
+          try {
+            const allUsersResponse = await axios.get(
+              `${import.meta.env.VITE_API_URL}/api/users`,
+              {
+                withCredentials: true,
+              }
+            );
+            const allUsers =
+              allUsersResponse.data?.users ||
+              allUsersResponse.data?.data ||
+              allUsersResponse.data ||
+              [];
+
+            const students = allUsers.filter(
+              (user) => user.role === "student" || user.role === "intern"
+            );
+            setStudents(students);
+          } catch (fallbackErr) {
+            console.error(
+              "Failed to fetch users as fallback for students:",
+              fallbackErr
+            );
+            setStudents([]);
+          }
+        }
       } catch (err) {
         console.error("Error fetching data:", err);
         // Only show error if we don't have project data from state
@@ -139,7 +230,7 @@ const AssignWork = () => {
 
       try {
         const response = await axios.get(
-          `${import.meta.env.VITE_API_URL}/api/teams/project/${projectId}`,
+          `${import.meta.env.VITE_API_URL}/api/assignments/project/${projectId}`,
           {
             withCredentials: true,
           }
@@ -283,9 +374,13 @@ const AssignWork = () => {
           assignmentData.priority = assignment.priority;
         }
 
-        return axios.post(`${import.meta.env.VITE_API_URL}/api/works/create`, assignmentData, {
-          withCredentials: true,
-        });
+        return axios.post(
+          `${import.meta.env.VITE_API_URL}/api/works/create`,
+          assignmentData,
+          {
+            withCredentials: true,
+          }
+        );
       });
 
       const results = await Promise.all(promises);

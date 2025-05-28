@@ -34,6 +34,12 @@ const ProjectList = () => {
 
         if (userData?.role === "admin") {
           // Admin: fetch all assignments
+          response = await axios.get(
+            `${import.meta.env.VITE_API_URL}/api/teams/all`,
+            {
+              withCredentials: true,
+            }
+          );
           response = await axios.get(`${import.meta.env.VITE_API_URL}/api/teams/all`, {
             withCredentials: true,
           });
@@ -47,7 +53,9 @@ const ProjectList = () => {
           // Others: fetch only relevant assignments
           const userId = userData?.userid;
           response = await axios.get(
-            `${import.meta.env.VITE_API_URL}/api/teams/user-assignments?userId=${userId}`,
+            `${
+              import.meta.env.VITE_API_URL
+            }/api/teams/user-assignments?userId=${userId}`,
             { withCredentials: true }
           );
         }
@@ -92,13 +100,18 @@ const ProjectList = () => {
     try {
       const userData = JSON.parse(localStorage.getItem("user"));
       let response;
-      console.log("try",userData.role)
+      console.log("try", userData.role);
       if (userData?.role === "admin") {
-        response = await axios.get(`${import.meta.env.VITE_API_URL}/api/teams/all`, { withCredentials: true });
+        response = await axios.get(
+          `${import.meta.env.VITE_API_URL}/api/teams/all`,
+          { withCredentials: true }
+        );
       } else {
         const userId = userData?.userid;
         response = await axios.get(
-          `${import.meta.env.VITE_API_URL}/api/teams/user-assignments?userId=${userId}`,
+          `${
+            import.meta.env.VITE_API_URL
+          }/api/teams/user-assignments?userId=${userId}`,
           { withCredentials: true }
         );
       }
