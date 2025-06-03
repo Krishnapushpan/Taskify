@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import express, { json } from "express";
 import cors from "cors";
 import apiRoutes from "./src/apiUsersRoutes.js";
-import razorpayRoutes from './src/Razorpay/routes/RazorpayRoute.js';
+// import razorpayRoutes from './src/Razorpay/routes/RazorpayRoute.js';
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 
@@ -22,7 +22,7 @@ app.use(cookieParser());
 
 // Use API routes
 app.use("/api", apiRoutes);
-app.use('/api/razorpay', razorpayRoutes);
+// app.use('/api/razorpay', razorpayRoutes);
 
 mongoose
   .connect(process.env.MONGO_URI)
