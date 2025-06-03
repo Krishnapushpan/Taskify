@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FiMail, FiLock } from "react-icons/fi";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
@@ -7,6 +8,8 @@ const Login = () => {
   const navigate = useNavigate();
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     // Check if user is already logged in
@@ -16,8 +19,22 @@ const Login = () => {
     }
   }, [navigate]);
 
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+    
+    if (name === 'email') {
+      if (!validateEmail(value)) {
+        setEmailError('Please enter a valid email address');
+      } else {
+        setEmailError('');
+      }
+    }
     setError(""); // Clear error when user types
   };
 
@@ -27,6 +44,12 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!validateEmail(form.email)) {
+      setEmailError('Please enter a valid email address');
+      return;
+    }
+
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/users/login`,
@@ -65,19 +88,7 @@ const Login = () => {
             It is a long established fact that a reader will be distracted by
             the readable content of a page when looking at its layout.
           </div>
-          <div className="login-info-quote">
-            <div>
-              There are many variations of passages of Lorem Ipsum available,
-              but the majority in some form
-            </div>
-            {/* <div className="login-info-profile">
-              <img src="https://randomuser.me${import.meta.env.VITE_API_URL}/api/portraits/men/32.jpg" alt="profile" className="login-info-avatar" />
-              <div>
-                <div className="login-info-name">Timson K</div>
-                <div className="login-info-role">Freelancer</div>
-              </div>
-            </div> */}
-          </div>
+         
         </div>
         {/* Right Login Form */}
         <div className="login-form-section">
@@ -98,10 +109,11 @@ const Login = () => {
                 required
               />
             </div>
-            <div className="login-input-wrapper">
+            {emailError && <span className="student-form-error">{emailError}</span>}
+            <div className="login-input-wrapper" style={{ position: 'relative' }}>
               <FiLock className="login-input-icon" />
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 name="password"
                 value={form.password}
                 onChange={handleChange}
@@ -109,6 +121,23 @@ const Login = () => {
                 className="login-input"
                 required
               />
+              <span
+                onClick={() => setShowPassword((prev) => !prev)}
+                style={{
+                  position: 'absolute',
+                  right: 14,
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  cursor: 'pointer',
+                  color: '#1681c2',
+                  fontSize: '1.2rem',
+                  zIndex: 2
+                }}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                tabIndex={0}
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </span>
             </div>
             {error && <span className="student-form-error">{error}</span>}
             <button type="submit" className="login-btn">
@@ -116,7 +145,7 @@ const Login = () => {
             </button>
           </form>
           <div className="login-signup-row">
-            <span>Don't have an account?</span>
+            <span>Only client can create account</span>
             <button className="login-signup-link" onClick={handleSignUp}>
               Sign Up
             </button>

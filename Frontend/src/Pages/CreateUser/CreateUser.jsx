@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import './User.css';
 import UserRoleDropdown from '../../Components/Dropdowns/RoleDropdown';
 import axios from 'axios';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const CreateUser = () => {
   const [form, setForm] = useState({
@@ -14,16 +15,54 @@ const CreateUser = () => {
     password: '',
   });
   const [passwordError, setPasswordError] = useState('');
+  const [phoneError, setPhoneError] = useState('');
+  const [emailError, setEmailError] = useState('');
   const [roleDropdownVisible, setRoleDropdownVisible] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+
+  const validatePassword = (password) => {
+    const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*])(?=.*[0-9])(?=.*[a-z]).{8,}$/;
+    return passwordRegex.test(password);
+  };
+
+  const validatePhone = (phone) => {
+    const phoneRegex = /^\d{10}$/;
+    return phoneRegex.test(phone);
+  };
+
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-    if (e.target.name === 'password' && e.target.value.length > 0 && e.target.value.length < 6) {
-      setPasswordError('Minimum of 6 characters');
-    } else {
-      setPasswordError('');
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+    
+    if (name === 'password') {
+      if (!validatePassword(value)) {
+        setPasswordError('Password must be at least 8 characters long and contain at least one uppercase letter, one special character, and one number');
+      } else {
+        setPasswordError('');
+      }
+    }
+    
+    if (name === 'phone') {
+      if (!validatePhone(value)) {
+        setPhoneError('Phone number must be exactly 10 digits');
+      } else {
+        setPhoneError('');
+      }
+    }
+
+    if (name === 'email') {
+      if (!validateEmail(value)) {
+        setEmailError('Please enter a valid email address');
+      } else {
+        setEmailError('');
+      }
     }
   };
 
@@ -37,8 +76,18 @@ const CreateUser = () => {
     setError('');
     setSuccess('');
 
-    if (form.password.length < 6) {
-      setPasswordError('Minimum of 6 characters');
+    if (!validatePassword(form.password)) {
+      setPasswordError('Password must be at least 8 characters long and contain at least one uppercase letter, one special character, and one number');
+      return;
+    }
+
+    if (!validatePhone(form.phone)) {
+      setPhoneError('Phone number must be exactly 10 digits');
+      return;
+    }
+
+    if (!validateEmail(form.email)) {
+      setEmailError('Please enter a valid email address');
       return;
     }
 
@@ -96,6 +145,7 @@ const CreateUser = () => {
                   required
                 />
               </label>
+              {emailError && <span className="student-form-error">{emailError}</span>}
             </div>
             <div className="create-user-form-group">
               <label>Phone:
@@ -105,9 +155,11 @@ const CreateUser = () => {
                   value={form.phone}
                   onChange={handleChange}
                   placeholder="Phone"
+                  maxLength="10"
                   required
                 />
               </label>
+              {phoneError && <span className="student-form-error">{phoneError}</span>}
             </div>
             <div className="create-user-form-group" style={{ position: 'relative' }}>
               <label>Role:
@@ -139,20 +191,44 @@ const CreateUser = () => {
               </div>
             )}
             <div className="create-user-form-group">
-              <label>Password:
+              <label>Password:</label>
+              <div style={{ position: 'relative' }}>
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   name="password"
                   value={form.password}
                   onChange={handleChange}
                   placeholder="Password"
                   required
+                  style={{ paddingRight: '2.5em' }}
                 />
-              </label>
+                <span
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  style={{
+                    position: 'absolute',
+                    right: '10px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    cursor: 'pointer',
+                    color: '#8d4a43',
+                    fontSize: '1.35em',
+                    zIndex: 2,
+                    height: '26px',
+                    width: '26px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  tabIndex={0}
+                >
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
+                </span>
+              </div>
+              {passwordError && (
+                <span className="student-form-error">{passwordError}</span>
+              )}
             </div>
-            {passwordError && (
-              <span className="student-form-error">{passwordError}</span>
-            )}
             <button type="submit" className="create-user-submit-btn">
               SUBMIT
             </button>

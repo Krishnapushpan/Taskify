@@ -1,4 +1,4 @@
-import User from "./User/models/UsersModel.js"; // Adjust the path if needed
+import User from "./User/models/UsersModel.js";
 import bcrypt from "bcrypt";
 
 const createAdminUser = async () => {

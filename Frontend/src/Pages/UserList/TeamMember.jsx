@@ -62,13 +62,17 @@ const TeamMember = () => {
 
   const handleModalSave = async () => {
     try {
-      // Add update API call here when implemented
-      // await axios.put(`${import.meta.env.VITE_API_URL}/api/users/${editMember._id}`, editMember);
+      await axios.put(
+        `${import.meta.env.VITE_API_URL}/api/users/${editMember._id}`,
+        editMember,
+        { withCredentials: true }
+      );
       setTeamMembers(
         teamMembers.map((m) => (m._id === editMember._id ? editMember : m))
       );
       setModalOpen(false);
       setEditMember(null);
+      setError("");
     } catch (error) {
       setError("Failed to update team member. Please try again.");
     }

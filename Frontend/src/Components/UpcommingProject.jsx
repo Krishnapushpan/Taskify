@@ -166,11 +166,11 @@ const UpcomingProject = () => {
                         </div>
                       </div>
                     </div>
-                    {userRole === "admin" && (
+                    {/* {userRole === "admin" && (
                       <Link to={`/assign-project/${project._id}`} className="assign-project-button">
                         Assign Team
                       </Link>
-                    )}
+                    )} */}
                   </div>
                 </div>
               ))}

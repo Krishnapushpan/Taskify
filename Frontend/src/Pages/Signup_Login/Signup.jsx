@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { FiMail, FiLock, FiUser, FiPhone, FiUserCheck } from 'react-icons/fi';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
@@ -13,14 +14,52 @@ const Signup = () => {
     position: null
   });
   const [passwordError, setPasswordError] = useState('');
+  const [phoneError, setPhoneError] = useState('');
+  const [emailError, setEmailError] = useState('');
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+
+  const validatePassword = (password) => {
+    const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*])(?=.*[0-9])(?=.*[a-z]).{8,}$/;
+    return passwordRegex.test(password);
+  };
+
+  const validatePhone = (phone) => {
+    const phoneRegex = /^\d{10}$/;
+    return phoneRegex.test(phone);
+  };
+
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-    if (e.target.name === 'password' && e.target.value.length > 0 && e.target.value.length < 6) {
-      setPasswordError('Minimum of 6 characters');
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+    
+    if (name === 'password') {
+      if (!validatePassword(value)) {
+        setPasswordError('Password must be at least 8 characters long and contain at least one uppercase letter, one special character, and one number');
     } else {
       setPasswordError('');
+      }
+    }
+    
+    if (name === 'phone') {
+      if (!validatePhone(value)) {
+        setPhoneError('Phone number must be exactly 10 digits');
+      } else {
+        setPhoneError('');
+      }
+    }
+
+    if (name === 'email') {
+      if (!validateEmail(value)) {
+        setEmailError('Please enter a valid email address');
+      } else {
+        setEmailError('');
+      }
     }
   };
 
@@ -32,8 +71,18 @@ const Signup = () => {
     e.preventDefault();
     setError('');
 
-    if (form.password.length < 6) {
-      setPasswordError('Minimum of 6 characters');
+    if (!validatePassword(form.password)) {
+      setPasswordError('Password must be at least 8 characters long and contain at least one uppercase letter, one special character, and one number');
+      return;
+    }
+
+    if (!validatePhone(form.phone)) {
+      setPhoneError('Phone number must be exactly 10 digits');
+      return;
+    }
+
+    if (!validateEmail(form.email)) {
+      setEmailError('Please enter a valid email address');
       return;
     }
 
@@ -47,7 +96,6 @@ const Signup = () => {
       });
 
       if (response.data) {
-        // Show success message and redirect to login
         alert('Registration successful! Please login.');
         navigate('/login');
       }
@@ -73,7 +121,7 @@ const Signup = () => {
         {/* Right Signup Form */}
         <div className="login-form-section">
           <div className="login-form-title">Sign Up</div>
-          <div className="login-form-subtitle">Fill in your details to create a client account.</div>
+          <div className="login-form-subtitle">Only client can create an account.</div>
           <form className="login-form" onSubmit={handleSubmit}>
             <div className="login-input-wrapper">
               <FiUser className="login-input-icon" />
@@ -99,6 +147,7 @@ const Signup = () => {
                 required
               />
             </div>
+            {emailError && <span className="student-form-error">{emailError}</span>}
             <div className="login-input-wrapper">
               <FiPhone className="login-input-icon" />
               <input
@@ -108,13 +157,15 @@ const Signup = () => {
                 onChange={handleChange}
                 placeholder="Phone"
                 className="login-input"
+                maxLength="10"
                 required
               />
             </div>
-            <div className="login-input-wrapper">
+            {phoneError && <span className="student-form-error">{phoneError}</span>}
+            <div className="login-input-wrapper" style={{ position: 'relative' }}>
               <FiLock className="login-input-icon" />
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 name="password"
                 value={form.password}
                 onChange={handleChange}
@@ -122,6 +173,23 @@ const Signup = () => {
                 className="login-input"
                 required
               />
+              <span
+                onClick={() => setShowPassword((prev) => !prev)}
+                style={{
+                  position: 'absolute',
+                  right: 14,
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  cursor: 'pointer',
+                  color: '#1681c2',
+                  fontSize: '1.2rem',
+                  zIndex: 2
+                }}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                tabIndex={0}
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </span>
             </div>
             {passwordError && (
               <span className="student-form-error">{passwordError}</span>

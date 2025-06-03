@@ -62,13 +62,17 @@ const StudentList = () => {
 
   const handleModalSave = async () => {
     try {
-      // Add update API call here when implemented
-      // await axios.put(`${import.meta.env.VITE_API_URL}/api/users/${editStudent._id}`, editStudent);
+      await axios.put(
+        `${import.meta.env.VITE_API_URL}/api/users/${editStudent._id}`,
+        editStudent,
+        { withCredentials: true }
+      );
       setStudents(
         students.map((s) => (s._id === editStudent._id ? editStudent : s))
       );
       setModalOpen(false);
       setEditStudent(null);
+      setError("");
     } catch (error) {
       setError("Failed to update student. Please try again.");
     }

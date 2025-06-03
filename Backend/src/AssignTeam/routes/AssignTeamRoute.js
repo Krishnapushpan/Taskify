@@ -8,7 +8,10 @@ import {
   getAssignmentsByProjectCreator,
   searchAssignmentsByProjectName,
   updateAssignmentPercentage,
-  getAssignedUsersForProject
+  getAssignedUsersForProject,
+  getProjectCountsByClient,
+  getAssignmentFile,
+  getProjectsAssignedToUser
 } from "../controllers/AssignTeamController.js";
 import { verifyToken } from "../../Middleware/auth.js";
 
@@ -40,5 +43,14 @@ router.patch('/:id/percentage', verifyToken, updateAssignmentPercentage);
 
 // Get assigned users (team members and students) for a project
 router.get('/assigned-users/:projectId', getAssignedUsersForProject);
+
+// Get project counts for a client (projectCreator)
+router.get('/project-counts/:clientId', getProjectCountsByClient);
+
+// Get assignment file
+router.get("/file/:id", getAssignmentFile);
+
+// Get projects assigned to a user
+router.get("/projects-by-user", getProjectsAssignedToUser);
 
 export default router;

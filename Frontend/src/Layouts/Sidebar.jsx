@@ -15,19 +15,25 @@ import {
   FaShareAlt,
   FaSignOutAlt,
   FaUserPlus,
+  FaTasks,
 } from "react-icons/fa";
 import Userdropdown from "../Components/Dropdowns/Userdropdown";
-import { logout, getUserRole } from "../utils/auth";
+import { logout, getUserFromToken, getCurrentUser } from "../utils/auth";
 
 const Sidebar = ({ onItemClick }) => {
   const navigate = useNavigate();
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
-  const [userRole, setUserRole] = useState(null);
+  const [userRole, setUserRole] = useState("");
+  const [fullName, setFullName] = useState("");
   const sidebarRef = useRef(null);
 
   useEffect(() => {
-    // Get user role from auth utility
-    setUserRole(getUserRole());
+    let user = getUserFromToken();
+    if (!user) {
+      user = getCurrentUser();
+    }
+    setUserRole(user?.role || "");
+    setFullName(user?.fullName || "");
   }, []);
 
   const handleLogout = async () => {
@@ -65,7 +71,13 @@ const Sidebar = ({ onItemClick }) => {
           <span className="logo-icon" />{" "}
           <span className="logo-text">Taskify</span>{" "}
         </span>
+       
       </div>
+       {/* User info under Taskify heading */}
+       <div style={{ marginTop: 8,display: "flex", flexDirection: "column", marginBottom: 8, paddingLeft: 28 }}>
+          <div style={{ fontWeight: 600, color: "#fffff", fontSize: 20 }}>{fullName}</div>
+          <div style={{ color: "#666", fontSize: 15 }}>{userRole}</div>
+        </div>
       <div className="sidebar-section sidebar-main">Main</div>
       <ul className="sidebar-menu">
         <li
@@ -86,6 +98,15 @@ const Sidebar = ({ onItemClick }) => {
             <span>Add User</span>
           </li>
         )}
+        {userRole === "admin" && (
+          <li
+            onClick={() => onItemClick && onItemClick("Meetings")}
+            style={{ cursor: "pointer" }}
+          >
+            <FaTable className="sidebar-icon" />
+            <span>Meetings</span>
+          </li>
+        )}
         {(userRole === "admin" || userRole === "Client") && (
           <li
             onClick={() => onItemClick && onItemClick("Add Project")}
@@ -95,8 +116,8 @@ const Sidebar = ({ onItemClick }) => {
             <span>Add Project</span>
           </li>
         )}
-        {/* Hide User List for clients */}
-        {userRole !== "Client" && userRole !== "client" && (
+        {/* Hide User List for non-admins */}
+        {userRole === "admin" && (
           <>
             <li
               onClick={() => {
@@ -120,6 +141,25 @@ const Sidebar = ({ onItemClick }) => {
             <Userdropdown visible={userDropdownOpen} onItemClick={onItemClick} />
           </>
         )}
+        {userRole === "Team Lead" && (
+          <li
+            onClick={() => onItemClick && onItemClick("Projects")}
+            style={{ cursor: "pointer" }}
+          >
+            <FaFileAlt className="sidebar-icon" />
+            <span>Projects</span>
+          </li>
+        )}
+        {/* My Work for Team Member and Student */}
+        {(userRole === "Team Member" || userRole === "Student") && (
+          <li
+            onClick={() => onItemClick && onItemClick("My Work")}
+            style={{ cursor: "pointer" }}
+          >
+            <FaTasks className="sidebar-icon" />
+            <span>My Work</span>
+          </li>
+        )}
       </ul>
       {/* Logout Button */}
       <div className="sidebar-footer">
@@ -132,6 +172,7 @@ const Sidebar = ({ onItemClick }) => {
             alignItems: "center",
             padding: "10px 15px",
             marginTop: "auto",
+            marginLeft: 18,
           }}
         >
           <FaSignOutAlt className="sidebar-icon" />

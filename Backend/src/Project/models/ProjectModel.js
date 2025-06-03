@@ -42,6 +42,16 @@ const projectSchema = new mongoose.Schema({
       ref: "TeamMember",
     },
   ],
+  projectFile: {
+    data: Buffer,
+    contentType: String,
+    originalName: String,
+  },
+  paymentStatus: {
+    type: String,
+    enum: ["Payment Done", "Non Payment"],
+    default: "Non Payment",
+  },
 });
 
 const Project = mongoose.model("Project", projectSchema);

@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 // Create a new project
 export const createProject = async (req, res) => {
   try {
+    // req.body fields are available as strings
     const { projectName, description, startDate, endDate, budget, addedBy } = req.body;
     const role = req.role;
 
@@ -17,14 +18,29 @@ export const createProject = async (req, res) => {
     } else {
       console.log("Creating project with user ID:", req.userid);
 
+      // Convert types
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      const budgetNum = Number(budget);
+
+      // req.file is the uploaded file (if any)
+      // You can save file info to the database if needed
+
       // Create new project
       const newProject = new Project({
         projectName,
         description,
-        startDate,
-        endDate,
-        budget,
+        startDate: start,
+        endDate: end,
+        budget: budgetNum,
         addedBy: addedBy || req.userId, // Use addedBy from request or fallback to userId from auth
+        projectFile: req.file
+          ? {
+              data: req.file.buffer,
+              contentType: req.file.mimetype,
+              originalName: req.file.originalname,
+            }
+          : undefined,
       });
 
       // Save project to database
@@ -210,5 +226,21 @@ export const getProjectWithTeam = async (req, res) => {
       message: "Failed to fetch project with team",
       error: error.message,
     });
+  }
+};
+
+// Serve the uploaded project file
+export const getProjectFile = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const project = await Project.findById(id);
+    if (!project || !project.projectFile || !project.projectFile.data) {
+      return res.status(404).json({ message: "File not found" });
+    }
+    res.set('Content-Type', project.projectFile.contentType);
+    res.set('Content-Disposition', `inline; filename="${project.projectFile.originalName}"`);
+    res.send(project.projectFile.data);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch file", error: error.message });
   }
 };

@@ -1,3 +1,5 @@
+import { jwtDecode } from "jwt-decode";
+
 // Authentication utilities
 
 /**
@@ -45,4 +47,28 @@ export const logout = (callback) => {
   if (callback && typeof callback === "function") {
     callback();
   }
+};
+
+/**
+ * Get user details from JWT token stored in localStorage
+ * @returns {Object|null} Decoded user object or null if not found/invalid
+ */
+export const getUserFromToken = () => {
+  const token = localStorage.getItem("token");
+  if (!token) return null;
+  try {
+    return jwtDecode(token); // returns the payload (user info, roles, etc.)
+  } catch (error) {
+    console.error("Error decoding token:", error);
+    return null;
+  }
+};
+
+/**
+ * Get user role from JWT token stored in localStorage
+ * @returns {string|null} User role or null if not found/invalid
+ */
+export const getUserRoleFromToken = () => {
+  const user = getUserFromToken();
+  return user ? user.role : null;
 };

@@ -4,9 +4,39 @@ import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 dotenv.config();
 
+const validatePassword = (password) => {
+  const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*])(?=.*[0-9])(?=.*[a-z]).{8,}$/;
+  return passwordRegex.test(password);
+};
+
+const validatePhone = (phone) => {
+  const phoneRegex = /^\d{10}$/;
+  return phoneRegex.test(phone);
+};
+
+const validateEmail = (email) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
 export const registerUser = async (req, res) => {
   try {
     const { fullName, email, phone, password, position } = req.body;
+
+    // Validate input
+    if (!validateEmail(email)) {
+      return res.status(400).json({ message: "Invalid email format" });
+    }
+
+    if (!validatePhone(phone)) {
+      return res.status(400).json({ message: "Phone number must be exactly 10 digits" });
+    }
+
+    if (!validatePassword(password)) {
+      return res.status(400).json({ 
+        message: "Password must be at least 8 characters long and contain at least one uppercase letter, one special character, and one number" 
+      });
+    }
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -57,6 +87,11 @@ export const registerUser = async (req, res) => {
 export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
+
+    // Validate email
+    if (!validateEmail(email)) {
+      return res.status(400).json({ error: "Invalid email format" });
+    }
 
     // Find user by email
     const user = await User.findOne({ email });
@@ -117,6 +152,21 @@ export const loginUser = async (req, res) => {
 export const createUser = async (req, res) => {
   try {
     const { fullName, email, phone, password, role, position } = req.body;
+
+    // Validate input
+    if (!validateEmail(email)) {
+      return res.status(400).json({ message: "Invalid email format" });
+    }
+
+    if (!validatePhone(phone)) {
+      return res.status(400).json({ message: "Phone number must be exactly 10 digits" });
+    }
+
+    if (!validatePassword(password)) {
+      return res.status(400).json({ 
+        message: "Password must be at least 8 characters long and contain at least one uppercase letter, one special character, and one number" 
+      });
+    }
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });

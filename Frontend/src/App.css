@@ -1254,3 +1254,64 @@ html, body, #root, #app {
     font-size: 12px;
   }
 }
+
+.student-form-error {
+  color: #d32f2f; /* Material red shade */
+  font-size: 1em;
+  margin-top: 4px;
+  margin-bottom: 4px;
+  display: block;
+  font-weight: 500;
+}
+
+/* Restore react-datepicker navigation arrows */
+.react-datepicker__navigation {
+  top: 10px;
+  line-height: 1.7rem;
+  border: none;
+  background: none;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+}
+
+.react-datepicker__navigation--previous {
+  left: 10px;
+}
+
+.react-datepicker__navigation--next {
+  right: 10px;
+}
+
+.react-datepicker__navigation-icon {
+  position: relative;
+  top: 6px;
+  font-size: 1.5em;
+  color: #333;
+}
+
+.react-datepicker__navigation-icon::before {
+  border-color: #333;
+}
+
+.react-datepicker__navigation--previous .react-datepicker__navigation-icon::before {
+  border-width: 2px 2px 0 0;
+  border-style: solid;
+  content: '';
+  display: block;
+  width: 10px;
+  height: 10px;
+  transform: rotate(-135deg);
+  margin: 0 auto;
+}
+
+.react-datepicker__navigation--next .react-datepicker__navigation-icon::before {
+  border-width: 2px 2px 0 0;
+  border-style: solid;
+  content: '';
+  display: block;
+  width: 10px;
+  height: 10px;
+  transform: rotate(45deg);
+  margin: 0 auto;
+}

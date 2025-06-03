@@ -1,0 +1,410 @@
+/* Projects Page Styles */
+.projects-page {
+  max-width: 1500px;
+  /* margin: 0 auto; */
+  padding: 10px 20px;
+  background: #f7f9fb;
+  min-height: 100vh;
+}
+
+.projects-page h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #2d3748;
+  margin-bottom: 32px;
+}
+
+.project-section {
+  margin-bottom: 36px;
+  border-left: 6px solid #1976d2;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(25, 118, 210, 0.07);
+  padding: 18px 22px 22px 22px;
+  transition: box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.project-section:hover {
+  box-shadow: 0 4px 18px rgba(25, 118, 210, 0.13);
+}
+
+.project-section h2 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #1976d2;
+  margin-bottom: 10px;
+}
+
+.project-list-container {
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  margin: 0;
+  padding: 20px;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  min-height: 0 !important;
+  height: auto !important;
+  max-height: none !important;
+}
+
+.project-list-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #323a46;
+  margin-bottom: 10px;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.project-list-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 8px;
+  min-width: 900px;
+  border: none;
+  background: #f8fafc;
+  margin-top: 8px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.project-list-table th {
+  padding: 16px 14px;
+  text-align: left;
+  font-weight: 700;
+  color: #1976d2;
+  font-size: 15px;
+  white-space: nowrap;
+  background-color: #e3f0fa;
+  border: none;
+}
+
+.project-list-table td {
+  padding: 16px 14px;
+  font-size: 15px;
+  color: #444;
+  vertical-align: middle;
+  background: #fff;
+  border: none;
+  border-radius: 6px;
+  box-shadow: 0 1px 4px rgba(25, 118, 210, 0.04);
+}
+
+/* Contextual row colors */
+.project-list-table tr.table-success td {
+  background-color: #e6f9ed !important;
+}
+.project-list-table tr.table-info td {
+  background-color: #e6f4fa !important;
+}
+.project-list-table tr.table-warning td {
+  background-color: #fff7e6 !important;
+}
+.project-list-table tr.table-danger td {
+  background-color: #ffeaea !important;
+}
+
+.project-list-table tr:hover td {
+  background-color: #e3f0fa !important;
+}
+
+@media (max-width: 1200px) {
+  .project-list-table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    min-width: 700px;
+  }
+  .project-list-table th,
+  .project-list-table td {
+    min-width: 120px;
+  }
+}
+
+@media (max-width: 768px) {
+  .project-section {
+    padding: 10px 4px 12px 4px;
+  }
+  .project-list-table td {
+    font-size: 13px;
+    padding: 10px 8px;
+  }
+  .project-list-table th {
+    padding: 10px 8px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .project-list-table td,
+  .project-list-table th {
+    padding: 8px 6px;
+    font-size: 12px;
+  }
+}
+
+/* Modern Projects Page Styles */
+.projects-modern-page {
+  width: 1400px;
+  /* margin: 0 auto; */
+  padding: 40px 20px;
+  background: #f7f9fb;
+  min-height: 100vh;
+}
+
+.projects-modern-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #2d3748;
+  margin-bottom: 32px;
+}
+
+.projects-modern-layout {
+  display: flex;
+  gap: 32px;
+}
+
+.projects-list-sidebar {
+  width: 320px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(25, 118, 210, 0.07);
+  padding: 24px 18px 18px 18px;
+  min-height: 500px;
+  display: flex;
+  flex-direction: column;
+}
+
+.projects-list-sidebar h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #1976d2;
+  margin-bottom: 18px;
+}
+
+.projects-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.projects-list li {
+  margin-bottom: 14px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.15s, box-shadow 0.15s;
+}
+.projects-list li.selected,
+.projects-list li:hover {
+  background: #e3f0fa;
+  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.08);
+}
+
+.project-list-card {
+  padding: 14px 12px;
+}
+.project-list-card-title {
+  font-weight: 700;
+  color: #1976d2;
+  font-size: 1.1rem;
+}
+.project-list-card-desc {
+  color: #444;
+  font-size: 0.98rem;
+  margin-top: 2px;
+}
+
+.project-details-main {
+  flex: 1;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(25, 118, 210, 0.07);
+  padding: 32px 32px 24px 32px;
+  min-height: 500px;
+  display: flex;
+  flex-direction: column;
+}
+
+.project-details-header h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1976d2;
+  margin-bottom: 6px;
+}
+.project-details-desc {
+  color: #444;
+  font-size: 1.05rem;
+  margin-bottom: 8px;
+}
+.project-details-dates {
+  color: #888;
+  font-size: 0.98rem;
+  margin-bottom: 18px;
+  display: flex;
+  gap: 18px;
+}
+
+.work-stats-cards {
+  display: flex;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+.work-stats-card {
+  flex: 1;
+  background: #f4f8fd;
+  border-radius: 8px;
+  padding: 18px 0 12px 0;
+  text-align: center;
+  font-weight: 600;
+  font-size: 1.08rem;
+  color: #1976d2;
+  box-shadow: 0 1px 4px rgba(25, 118, 210, 0.04);
+  transition: background 0.15s, color 0.15s;
+}
+.work-stats-card span {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #323a46;
+  margin-top: 6px;
+}
+.work-stats-card.completed {
+  background: #e6f9ed;
+  color: #1abc9c;
+}
+.work-stats-card.inprogress {
+  background: #e6f4fa;
+  color: #4fc6e1;
+}
+.work-stats-card.pending {
+  background: #fff7e6;
+  color: #f1556c;
+}
+.work-stats-card.total {
+  background: #f4f8fd;
+  color: #1976d2;
+}
+
+.work-status-tabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.work-status-tabs button {
+  background: #f4f8fd;
+  color: #1976d2;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 22px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.work-status-tabs button.active,
+.work-status-tabs button:hover {
+  background: #1976d2;
+  color: #fff;
+}
+
+.work-assignments-table-modern-container {
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 18px 10px 10px 10px;
+  box-shadow: 0 1px 4px rgba(25, 118, 210, 0.04);
+}
+.work-assignments-table-modern {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  font-size: 1rem;
+}
+.work-assignments-table-modern th,
+.work-assignments-table-modern td {
+  padding: 12px 16px;
+  text-align: center;
+  vertical-align: middle;
+}
+.work-assignments-table-modern th {
+  background: #e3f0ff;
+  color: #1976d2;
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+.work-assignments-table-modern tr {
+  border-bottom: 1px solid #f0f0f0;
+}
+.work-assignments-table-modern tr:last-child {
+  border-bottom: none;
+}
+.work-assignments-table-modern td {
+  color: #222;
+  font-weight: 500;
+}
+/* Left-align the Description column */
+.work-assignments-table-modern th.left-align,
+.work-assignments-table-modern td.left-align {
+  text-align: left !important;
+}
+
+.project-details-placeholder {
+  color: #888;
+  font-size: 1.1rem;
+  text-align: center;
+  margin-top: 80px;
+}
+
+@media (max-width: 1100px) {
+  .projects-modern-layout {
+    flex-direction: column;
+    gap: 18px;
+  }
+  .projects-list-sidebar {
+    width: 100%;
+    min-height: unset;
+    margin-bottom: 18px;
+  }
+  .project-details-main {
+    padding: 18px 8px 12px 8px;
+  }
+}
+
+@media (max-width: 700px) {
+  .projects-modern-page {
+    padding: 10px 2px;
+  }
+  .projects-modern-title {
+    font-size: 1.5rem;
+  }
+  .projects-list-sidebar {
+    padding: 10px 4px 8px 4px;
+  }
+  .project-list-card-title {
+    font-size: 1rem;
+  }
+  .work-stats-card span {
+    font-size: 1.1rem;
+  }
+  .work-status-tabs button {
+    padding: 6px 10px;
+    font-size: 0.95rem;
+  }
+  .work-assignments-table-modern th,
+  .work-assignments-table-modern td {
+    font-size: 0.95rem;
+    padding: 8px 6px;
+  }
+}

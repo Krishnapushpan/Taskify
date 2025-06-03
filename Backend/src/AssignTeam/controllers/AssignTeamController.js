@@ -47,14 +47,21 @@ export const assignTeam = async (req, res) => {
       if (req.body.startDate) existingAssignment.startDate = req.body.startDate;
       if (req.body.dueDate) existingAssignment.dueDate = req.body.dueDate;
       if (percentage !== undefined) existingAssignment.percentage = percentage;
-
+      // Copy projectFile from Project
+      if (project.projectFile && project.projectFile.data) {
+        existingAssignment.projectFile = {
+          data: project.projectFile.data,
+          contentType: project.projectFile.contentType,
+          originalName: project.projectFile.originalName,
+        };
+      }
       await existingAssignment.save();
 
       // Populate details before sending response
       const updatedAssignment = await AssignTeam.findById(
         existingAssignment._id
       )
-        .populate("project", "projectName description startDate endDate budget")
+        .populate("project", "projectName description startDate endDate budget projectFile")
         .populate("teamLead", "fullName email role position")
         .populate("teamMembers", "fullName email role position")
         .populate("students", "fullName email role");
@@ -75,14 +82,22 @@ export const assignTeam = async (req, res) => {
         startDate: req.body.startDate,
         dueDate: req.body.dueDate,
         projectCreator: project.addedBy,
-        percentage: percentage || 0
+        percentage: percentage || 0,
+        // Copy projectFile from Project
+        projectFile: project.projectFile && project.projectFile.data
+          ? {
+              data: project.projectFile.data,
+              contentType: project.projectFile.contentType,
+              originalName: project.projectFile.originalName,
+            }
+          : undefined,
       });
 
       await newAssignment.save();
 
       // Populate details before sending response
       const populatedAssignment = await AssignTeam.findById(newAssignment._id)
-        .populate("project", "projectName description startDate endDate budget")
+        .populate("project", "projectName description startDate endDate budget projectFile")
         .populate("teamLead", "fullName email role position")
         .populate("teamMembers", "fullName email role position")
         .populate("students", "fullName email role");
@@ -107,7 +122,7 @@ export const getTeamByProject = async (req, res) => {
 
     // Find the team assignment for the given project
     const teamAssignment = await AssignTeam.findOne({ project: projectId })
-      .populate("project", "projectName description startDate endDate budget")
+      .populate("project", "projectName description startDate endDate budget projectFile")
       .populate("teamLead", "fullName email role position")
       .populate("teamMembers", "fullName email role position")
       .populate("students", "fullName email role");
@@ -131,7 +146,7 @@ export const getTeamByProject = async (req, res) => {
 export const getAllTeamAssignments = async (req, res) => {
   try {
     const teamAssignments = await AssignTeam.find()
-      .populate("project", "projectName description startDate endDate budget")
+      .populate("project", "projectName description startDate endDate budget projectFile")
       .populate("teamLead", "fullName email role position")
       .populate("teamMembers", "fullName email role position")
       .populate("students", "fullName email role")
@@ -182,7 +197,7 @@ export const getUserAssignments = async (req, res) => {
         { students: userId },
       ],
     })
-      .populate("project", "projectName description startDate endDate budget")
+      .populate("project", "projectName description startDate endDate budget projectFile")
       .populate("teamLead", "fullName email role position")
       .populate("teamMembers", "fullName email role position")
       .populate("students", "fullName email role")
@@ -207,7 +222,7 @@ export const getAssignmentsByProjectCreator = async (req, res) => {
     }
 
     const assignments = await AssignTeam.find({ projectCreator: creatorId })
-      .populate("project", "projectName description startDate endDate budget")
+      .populate("project", "projectName description startDate endDate budget projectFile")
       .populate("teamLead", "fullName email role position")
       .populate("teamMembers", "fullName email role position")
       .populate("students", "fullName email role")
@@ -234,7 +249,7 @@ export const searchAssignmentsByProjectName = async (req, res) => {
     const assignments = await AssignTeam.find({
       projectName: { $regex: new RegExp(projectName, 'i') }
     })
-      .populate("project", "projectName description startDate endDate budget")
+      .populate("project", "projectName description startDate endDate budget projectFile")
       .populate("teamLead", "fullName email role position")
       .populate("teamMembers", "fullName email role position")
       .populate("students", "fullName email role")
@@ -293,5 +308,80 @@ export const getAssignedUsersForProject = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ message: 'Failed to fetch assigned users', error: error.message });
+  }
+};
+
+// Get project counts for a client (projectCreator)
+export const getProjectCountsByClient = async (req, res) => {
+  try {
+    const { clientId } = req.params;
+    if (!clientId) {
+      return res.status(400).json({ message: "Client ID is required" });
+    }
+
+    // Find all assignments for this client
+    const assignments = await AssignTeam.find({ projectCreator: clientId });
+    const total = assignments.length;
+    let completed = 0, inProgress = 0, pending = 0;
+    assignments.forEach(a => {
+      const status = (a.status || "").toLowerCase();
+      if (status === "completed") completed++;
+      else if (status === "in progress" || status === "inprogress") inProgress++;
+      else pending++;
+    });
+    res.status(200).json({
+      counts: {
+        total,
+        completed,
+        inProgress,
+        pending
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch project counts", error: error.message });
+  }
+};
+
+// Serve the uploaded project file from AssignTeam
+export const getAssignmentFile = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const assignment = await AssignTeam.findById(id);
+    if (!assignment || !assignment.projectFile || !assignment.projectFile.data) {
+      return res.status(404).json({ message: "File not found" });
+    }
+    res.set('Content-Type', assignment.projectFile.contentType);
+    res.set('Content-Disposition', `inline; filename="${assignment.projectFile.originalName}"`);
+    res.send(assignment.projectFile.data);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch file", error: error.message });
+  }
+};
+
+// Get unique projects assigned to a user (team lead, team member, or student)
+export const getProjectsAssignedToUser = async (req, res) => {
+  try {
+    const { userId } = req.query;
+    if (!userId) {
+      return res.status(400).json({ message: "User ID is required" });
+    }
+    // Find assignments where user is team lead, team member, or student
+    const assignments = await AssignTeam.find({
+      $or: [
+        { teamLead: userId },
+        { teamMembers: userId },
+        { students: userId }
+      ]
+    }).populate("project", "projectName description startDate endDate");
+    // Extract unique projects
+    const uniqueProjects = {};
+    assignments.forEach(a => {
+      if (a.project && !uniqueProjects[a.project._id]) {
+        uniqueProjects[a.project._id] = a.project;
+      }
+    });
+    res.status(200).json(Object.values(uniqueProjects));
+  } catch (error) {
+    res.status(500).json({ message: "Failed to get projects for user", error: error.message });
   }
 };

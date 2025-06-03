@@ -8,7 +8,15 @@ import {
   // getPersonalWork,
   getUserWorkAssignments,
   getWorkAssignmentsByTeamLead,
-  updateWorkAssignmentPercentage
+  updateWorkAssignmentPercentage,
+  getWorkCountsByUserRole,
+  getWorkAssignmentsByProjectWithStatus,
+  getWorkCountsByProject,
+  getWorkAssignmentsByProjectStatusLogic,
+  getProjectsByTeamLead,
+  getWorkAssignmentsByProjectNameStatusLogic,
+  getWorkCounts,
+  getPersonalWorkAssignments
 } from "../controllers/AssignWorkController.js";
 import { verifyToken } from "../../Middleware/auth.js";
 
@@ -38,12 +46,33 @@ router.put("/:id/status", verifyToken, updateWorkAssignmentStatus);
 router.delete("/:id", verifyToken, deleteWorkAssignment);
 
 // Get personal work assignments for a user (userId as path param)
-router.get("/personal", getUserWorkAssignments);
+router.get("/personal", getPersonalWorkAssignments);
 
 // Get work assignments by team lead (or all if no filter)
 router.get("/", getWorkAssignmentsByTeamLead);
 
 // Update work assignment percentage
 router.patch('/:id/percentage', verifyToken, updateWorkAssignmentPercentage);
+
+// Get work counts by user role
+router.get("/counts/by-role", getWorkCountsByUserRole);
+
+// Get work assignments by project with optional status
+router.get("/project/:projectId/assignments", getWorkAssignmentsByProjectWithStatus);
+
+// Get work counts by project
+router.get("/counts/project/:projectId", getWorkCountsByProject);
+
+// Get work assignments by project status logic
+router.get("/project/:projectId/assignments-by-status", getWorkAssignmentsByProjectStatusLogic);
+
+// Get projects by team lead
+router.get("/projects-by-teamlead", getProjectsByTeamLead);
+
+// Get work assignments by project name and status
+router.get("/project-by-name/:projectName/assignments-by-status", getWorkAssignmentsByProjectNameStatusLogic);
+
+// Get work counts
+router.get("/counts", getWorkCounts);
 
 export default router;

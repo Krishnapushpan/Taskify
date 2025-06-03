@@ -13,6 +13,10 @@ import PersonalWork from "../PersonalWork/PersonalWork";
 import MenuIcon from "../../assets/menu-icon";
 import WorkCount from "../../Components/WorkCount";
 import WorkStatus from "../WorkStatus/WorkStatus";
+import ProjectCount from "../../Components/ProjectCount";
+import Meeting from "../Meeting/Meeting";
+import Projects from "../Projects/Projects";
+import MyWork from "../MyWork/MyWork";
 
 const AdminDashBoard = () => {
   const [selectedItem, setSelectedItem] = useState(null);
@@ -135,6 +139,12 @@ const AdminDashBoard = () => {
           <TeamMember />
         ) : selectedItem === "Team Lead List" ? (
           <Teamlead />
+        ) : selectedItem === "Meetings" ? (
+          <Meeting />
+        ) : selectedItem === "Projects" ? (
+          <Projects />
+        ) : selectedItem === "My Work" ? (
+          <MyWork />
         ) : (
           <>
             <h1
@@ -147,8 +157,15 @@ const AdminDashBoard = () => {
             >
               Welcome!
             </h1>
-            {isAdmin&& <CountUsers />}
-            {isTeamMemberOrStudentOrTeamLead && <WorkCount />}
+            {isAdmin && <CountUsers />}
+           
+            {userRole === "Client" || userRole === "client" ? (
+              <>
+                <ProjectCount />
+              </>
+            ) : (
+              isTeamMemberOrStudentOrTeamLead && <WorkCount />
+            )}
             {isAdminOrTeamLead &&
             <div style={{ marginTop: "20px" }}>
               <UpcommingProject />
@@ -156,6 +173,11 @@ const AdminDashBoard = () => {
 
             <div style={{ marginTop: "20px" }}>
               <ProjectList />
+              {(userRole === "Client" || userRole === "client") && (
+                <div style={{ marginTop: "20px" }}>
+                  <Meeting />
+                </div>
+              )}
             </div>
             {isAdminOrTeamLead && (
               <div style={{ marginTop: "20px" }}>

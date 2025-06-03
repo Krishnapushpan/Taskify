@@ -157,6 +157,17 @@ const ViewMoreProjects = () => {
                       </Link>
                     )
                   )}
+                  {userRole === "admin" && project.projectFile && project.projectFile.data && (
+                    <a
+                      href={`${import.meta.env.VITE_API_URL}/api/projects/file/${project._id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="view-document-button"
+                      style={{ marginLeft: "10px" }}
+                    >
+                      View Document
+                    </a>
+                  )}
                 </div>
               </div>
             ))}

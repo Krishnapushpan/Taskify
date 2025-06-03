@@ -8,12 +8,13 @@ import {
 } from "react-icons/fa";
 import axios from "axios";
 
-const WorkCount = ({ userId }) => {
+const WorkCount = ({ userId: propUserId }) => {
   const [counts, setCounts] = useState({
     totalAssigned: 0,
     completed: 0,
     pending: 0,
     inProgress: 0,
+    overdue: 0,
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -23,44 +24,49 @@ const WorkCount = ({ userId }) => {
       try {
         setLoading(true);
         setError("");
-
         let response;
-
-        // If userId is provided, fetch counts for that specific user
-        if (userId) {
-          response = await axios.get(`${import.meta.env.VITE_API_URL}/api/work/user/${userId}/counts`, {
-            withCredentials: true,
-          });
+        // Get user info from localStorage
+        const userData = JSON.parse(localStorage.getItem("user"));
+        const userId = propUserId || userData?.userid;
+        const role = userData?.role;
+        // If team lead, team member, or student, fetch counts by role
+        if (
+          ["Team Lead", "team_lead", "teamLead", "Team Member", "team_member", "teamMember", "Student", "student"].includes(role)
+        ) {
+          response = await axios.get(
+            `${import.meta.env.VITE_API_URL}/api/works/counts/by-role?userId=${userId}&role=${role}`,
+            { withCredentials: true }
+          );
         } else {
           // Otherwise fetch global counts (for admin dashboard)
-          response = await axios.get(`${import.meta.env.VITE_API_URL}/api/work/counts`, {
+          response = await axios.get(`${import.meta.env.VITE_API_URL}/api/works/counts`, {
             withCredentials: true,
           });
         }
-
         if (response.data && response.data.counts) {
-          setCounts(response.data.counts);
+          setCounts({
+            ...response.data.counts,
+            overdue: response.data.counts.overdue || 0,
+          });
         } else {
           throw new Error("Invalid response format");
         }
       } catch (err) {
         console.error("Error fetching work counts:", err);
         setError("Failed to load work stats");
-
-        // Fallback to placeholder values in case of error
         setCounts({
           totalAssigned: 0,
           completed: 0,
           pending: 0,
           inProgress: 0,
+          overdue: 0,
         });
       } finally {
         setLoading(false);
       }
     };
-
     fetchCounts();
-  }, [userId]);
+  }, [propUserId]);
 
   const stats = [
     {
@@ -87,6 +93,12 @@ const WorkCount = ({ userId }) => {
       icon: <FaSpinner className="count-icon" />,
       color: "#4fc6e1",
     },
+    {
+      title: "OVERDUE",
+      count: counts.overdue,
+      icon: <FaExclamationTriangle className="count-icon" />,
+      color: "#e53935",
+    },
   ];
 
   if (loading) {
@@ -110,7 +122,8 @@ const WorkCount = ({ userId }) => {
     counts.totalAssigned === 0 &&
     counts.completed === 0 &&
     counts.pending === 0 &&
-    counts.inProgress === 0;
+    counts.inProgress === 0 &&
+    counts.overdue === 0;
 
   if (allZero) {
     return (

@@ -54,6 +54,11 @@ const assignTeamSchema = new mongoose.Schema({
       ref: "User",
     },
   ],
+  projectFile: {
+    data: Buffer,
+    contentType: String,
+    originalName: String,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
