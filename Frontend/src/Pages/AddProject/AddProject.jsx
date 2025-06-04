@@ -8,13 +8,6 @@ import "../../form.css";
 
 // const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
-function getCookie(name) {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop().split(';').shift();
-  return null;
-}
-
 const AddProject = () => {
   const [form, setForm] = useState({
     projectName: "",
@@ -95,13 +88,10 @@ const AddProject = () => {
       formData.append("addedBy", userData.userid);
       formData.append("paymentStatus", "Payment Done");
       // You may need to handle file upload separately if needed
-      const token = getCookie('Authtoken');
       await axios.post(`${import.meta.env.VITE_API_URL}/api/projects/create`, formData, {
         withCredentials: true,
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: token ? `Bearer ${token}` : "",
-        },
+        headers: { "Content-Type": "multipart/form-data" },
+        Authorization: `Bearer ${token}`,
       });
       setSuccess("Project created successfully after payment!");
       setForm({
@@ -154,12 +144,11 @@ const AddProject = () => {
       formData.append("paymentStatus", paymentStatus);
 
       // Send data to backend API
-      const token = getCookie('Authtoken');
       const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/projects/create`, formData, {
         withCredentials: true,
         headers: {
           "Content-Type": "multipart/form-data",
-          Authorization: token ? `Bearer ${token}` : "",
+          Authorization: `Bearer ${token}`,
         },
       });
 
