@@ -7,6 +7,7 @@ export const createProject = async (req, res) => {
     // req.body fields are available as strings
     const { projectName, description, startDate, endDate, budget, addedBy } = req.body;
     const role = req.role;
+    console.log("getting role from the token:",role)
 
     if (
       role !== "client" &&
