@@ -16,7 +16,7 @@ const router = express.Router();
 const upload = multer();
 
 // Create a new project (requires authentication)
-router.post("/create", verifyToken, upload.single('projectFile'), createProject);
+router.post("/create", upload.single('projectFile'), createProject);
 
 // Get all projects (temporarily removed auth for testing)
 router.get("/all", verifyToken, getAllProjects);
