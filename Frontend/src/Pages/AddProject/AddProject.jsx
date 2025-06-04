@@ -91,6 +91,7 @@ const AddProject = () => {
       await axios.post(`${import.meta.env.VITE_API_URL}/api/projects/create`, formData, {
         withCredentials: true,
         headers: { "Content-Type": "multipart/form-data" },
+        Authorization: `Bearer ${token}`,
       });
       setSuccess("Project created successfully after payment!");
       setForm({
@@ -147,6 +148,7 @@ const AddProject = () => {
         withCredentials: true,
         headers: {
           "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
         },
       });
 
