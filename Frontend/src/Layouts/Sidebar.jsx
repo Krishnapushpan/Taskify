@@ -116,6 +116,16 @@ const Sidebar = ({ onItemClick }) => {
             <span>Add Project</span>
           </li>
         )}
+        {/* Show Projects for both Admin and Team Lead */}
+        {(userRole === "admin" || userRole === "Team Lead") && (
+          <li
+            onClick={() => onItemClick && onItemClick("Projects")}
+            style={{ cursor: "pointer" }}
+          >
+            <FaFileAlt className="sidebar-icon" />
+            <span>Projects</span>
+          </li>
+        )}
         {/* Hide User List for non-admins */}
         {userRole === "admin" && (
           <>
@@ -140,15 +150,6 @@ const Sidebar = ({ onItemClick }) => {
             </li>
             <Userdropdown visible={userDropdownOpen} onItemClick={onItemClick} />
           </>
-        )}
-        {userRole === "Team Lead" && (
-          <li
-            onClick={() => onItemClick && onItemClick("Projects")}
-            style={{ cursor: "pointer" }}
-          >
-            <FaFileAlt className="sidebar-icon" />
-            <span>Projects</span>
-          </li>
         )}
         {/* My Work for Team Member and Student */}
         {(userRole === "Team Member" || userRole === "Student") && (

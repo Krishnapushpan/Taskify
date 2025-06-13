@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./Projects.css";
+import { useNavigate } from "react-router-dom";
 
 const statusLabels = [
   { key: "all", label: "All" },
@@ -18,74 +19,80 @@ const Projects = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [loadingAssignments, setLoadingAssignments] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isTeamlead, setIsTeamlead] = useState(false);
+  const [viewMode, setViewMode] = useState("projects"); // "projects" or "assignments"
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchProjects = async () => {
+    const fetchData = async () => {
+      setLoading(true);
+      setError("");
       try {
-        setLoading(true);
-        setError("");
-        // Get userId from localStorage (parse JSON)
         const userStr = localStorage.getItem("user");
         let userID = undefined;
+        let userRole = undefined;
         if (userStr) {
-          try {
-            const userObj = JSON.parse(userStr);
-            userID = userObj.userid;
-          } catch (e) {
-            console.error("Failed to parse user from localStorage", e);
-          }
+          const userObj = JSON.parse(userStr);
+          userID = userObj.userid;
+          userRole = userObj.role;
+          setIsAdmin(userRole === "admin");
+          setIsTeamlead(userRole === "Team Lead");
         }
-        console.log(userID, "checking");
-        const res = await axios.get(
-          `${import.meta.env.VITE_API_URL}/api/teams/projects-by-user?userId=${userID}`,
-          { withCredentials: true }
-        );
-        setProjects(res.data);
+
+        if (userRole === "admin") {
+          // Admin: fetch all projects
+          const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/teams/admin/all-projects`, { withCredentials: true });
+          setProjects(res.data);
+        } else if (userRole === "Team Lead") {
+          // Teamlead: fetch only assigned projects
+          const res = await axios.get(
+            `${import.meta.env.VITE_API_URL}/api/teams/projects-by-user?userId=${userID}`,
+            { withCredentials: true }
+          );
+          setProjects(res.data);
+        } else {
+          // Regular user: fetch only assigned projects
+          const res = await axios.get(
+            `${import.meta.env.VITE_API_URL}/api/teams/projects-by-user?userId=${userID}`,
+            { withCredentials: true }
+          );
+          setProjects(res.data);
+        }
       } catch (err) {
-        setError("Failed to load projects");
+        setError("Failed to load data");
+        setProjects([]);
       } finally {
         setLoading(false);
       }
     };
-    fetchProjects();
+    fetchData();
   }, []);
 
-  // Fetch work counts when a project is selected
-  useEffect(() => {
-    if (!selectedProject) return;
-    const fetchCounts = async () => {
-      try {
-        const countsRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/works/counts/project/${selectedProject._id}`);
-        setWorkCounts(countsRes.data.counts);
-      } catch (err) {
-        setWorkCounts(null);
-      }
-    };
-    fetchCounts();
-  }, [selectedProject]);
+  const handleStatusUpdate = async (projectId, newStatus) => {
+    try {
+      await axios.patch(
+        `${import.meta.env.VITE_API_URL}/api/assign-team/admin/project/${projectId}/status`,
+        { status: newStatus },
+        { withCredentials: true }
+      );
+      // Refresh the data
+      const [projectsRes, assignmentsRes] = await Promise.all([
+        axios.get(`${import.meta.env.VITE_API_URL}/api/assign-team/admin/all-projects`, { withCredentials: true }),
+        axios.get(`${import.meta.env.VITE_API_URL}/api/assign-team/admin/all-assignments`, { withCredentials: true })
+      ]);
+      setProjects(projectsRes.data);
+      setAssignments(assignmentsRes.data);
+    } catch (error) {
+      console.error("Failed to update status:", error);
+      setError("Failed to update project status");
+    }
+  };
 
-  // Fetch assignments for the selected project and status
-  useEffect(() => {
-    if (!selectedProject) return;
-    const fetchAssignments = async () => {
-      try {
-        setLoadingAssignments(true);
-        // Use the backend route for assignments by project name and status
-        const assignRes = await axios.get(
-          `${import.meta.env.VITE_API_URL}/api/works/project-by-name/${encodeURIComponent(selectedProject.projectName)}/assignments-by-status?status=${statusFilter}`,
-          { withCredentials: true }
-        );
-        setAssignments(assignRes.data);
-      } catch (err) {
-        setAssignments([]);
-      } finally {
-        setLoadingAssignments(false);
-      }
-    };
-    fetchAssignments();
-  }, [selectedProject, statusFilter]);
+  const filteredProjects = statusFilter === "all"
+    ? projects
+    : projects.filter(p => p.status === statusFilter);
 
-  // Filter assignments by status
   const filteredAssignments = statusFilter === "all"
     ? assignments
     : assignments.filter(a => a.status === statusFilter);
@@ -93,22 +100,62 @@ const Projects = () => {
   return (
     <div className="projects-modern-page">
       <h1 className="projects-modern-title">Projects</h1>
-      <div className="projects-modern-layout">
-        {/* Project List Sidebar */}
-        <div className="projects-list-sidebar">
-          <h3>All Projects</h3>
-          {loading ? (
-            <div>Loading...</div>
-          ) : error ? (
-            <div style={{ color: "red" }}>{error}</div>
-          ) : (
+      {loading ? (
+        <div>Loading...</div>
+      ) : error ? (
+        <div style={{ color: "red" }}>{error}</div>
+      ) : (isAdmin || isTeamlead) ? (
+        <div className="admin-projects-view">
+          <div className="work-assignments-table-modern-container">
+            <table className="work-assignments-table-modern">
+              <thead>
+                <tr>
+                  <th>Project Name</th>
+                  <th>Description</th>
+                  <th>Start Date</th>
+                  <th>End Date</th>
+                  {isAdmin && <th>Created By</th>}
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredProjects.map((project) => (
+                  <tr key={project._id}>
+                    <td>{project.projectName}</td>
+                    <td>{project.description}</td>
+                    <td>{project.startDate ? new Date(project.startDate).toLocaleDateString() : "-"}</td>
+                    <td>{project.endDate ? new Date(project.endDate).toLocaleDateString() : "-"}</td>
+                    {isAdmin && (
+                      <td>{project.addedBy?.fullName || project.addedBy || "-"}</td>
+                    )}
+                    <td>
+                      <button
+                        onClick={() => navigate("/view-details", { state: { project } })}
+                        style={{
+                          padding: "4px 8px",
+                          borderRadius: "4px",
+                          border: "1px solid #1976d2",
+                          background: "#fff",
+                          color: "#1976d2",
+                          cursor: "pointer"
+                        }}
+                      >
+                        View Details
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ) : (
+        <div className="projects-modern-layout">
+          <div className="projects-list-sidebar">
+            <h3>All Projects</h3>
             <ul className="projects-list">
               {projects.map((project) => (
-                <li
-                  key={project._id}
-                  className={selectedProject && selectedProject._id === project._id ? "selected" : ""}
-                  onClick={() => setSelectedProject(project)}
-                >
+                <li key={project._id}>
                   <div className="project-list-card">
                     <div className="project-list-card-title">{project.projectName}</div>
                     <div className="project-list-card-desc">{project.description}</div>
@@ -116,82 +163,14 @@ const Projects = () => {
                 </li>
               ))}
             </ul>
-          )}
+          </div>
+          <div className="project-details-main">
+            <div className="project-details-placeholder">
+              Select a project to view details
+            </div>
+          </div>
         </div>
-        {/* Project Details & Work Stats */}
-        <div className="project-details-main">
-          {selectedProject ? (
-            <>
-              <div className="project-details-header">
-                <h2>{selectedProject.projectName}</h2>
-                <div className="project-details-desc">{selectedProject.description}</div>
-                <div className="project-details-dates">
-                  <span>Start: {selectedProject.startDate ? new Date(selectedProject.startDate).toLocaleDateString() : "-"}</span>
-                  <span>Due: {selectedProject.endDate ? new Date(selectedProject.endDate).toLocaleDateString() : "-"}</span>
-                </div>
-              </div>
-        
-              <div className="work-status-tabs">
-                {statusLabels.map((s) => {
-                  let btnStyle = {};
-                  if (s.key === "all") btnStyle = { background: statusFilter === s.key ? "#1976d2" : "#e3f0ff", color: statusFilter === s.key ? "#fff" : "#1976d2" };
-                  else if (s.key === "Completed") btnStyle = { background: statusFilter === s.key ? "#43a047" : "#e8f5e9", color: statusFilter === s.key ? "#fff" : "#43a047" };
-                  else if (s.key === "In Progress") btnStyle = { background: statusFilter === s.key ? "#fb8c00" : "#fff3e0", color: statusFilter === s.key ? "#fff" : "#fb8c00" };
-                  else if (s.key === "Pending") btnStyle = { background: statusFilter === s.key ? "#e53935" : "#ffebee", color: statusFilter === s.key ? "#fff" : "#e53935" };
-                  return (
-                    <button
-                      key={s.key}
-                      className={statusFilter === s.key ? "active" : ""}
-                      style={{ ...btnStyle, border: "none", borderRadius: 6, marginRight: 8, padding: "8px 18px", fontWeight: 600, cursor: "pointer", transition: "background 0.2s, color 0.2s" }}
-                      onClick={() => setStatusFilter(s.key)}
-                    >
-                      {s.label}
-                    </button>
-                  );
-                })}
-              </div>
-              <div className="work-assignments-table-modern-container">
-                {loadingAssignments ? (
-                  <div>Loading assignments...</div>
-                ) : filteredAssignments.length === 0 ? (
-                  <div style={{ padding: 16, color: "#888" }}>No assignments found for this status.</div>
-                ) : (
-                  <table className="work-assignments-table-modern">
-                    <thead>
-                      <tr>
-                        <th>Member</th>
-                        <th>Description</th>
-                        <th>Due Date</th>
-                        <th>Status</th>
-                        <th>Remaining Days</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredAssignments.map((a, idx) => (
-                        <tr key={a._id}>
-                          <td>
-                            {(a.teamMembers && a.teamMembers.length > 0)
-                              ? a.teamMembers.map(m => m.fullName).join(", ")
-                              : (a.students && a.students.length > 0)
-                                ? a.students.map(s => s.fullName).join(", ")
-                                : "-"}
-                          </td>
-                          <td>{a.workDescription}</td>
-                          <td>{a.dueDate ? new Date(a.dueDate).toLocaleDateString() : "-"}</td>
-                          <td>{a.status}</td>
-                          <td>{a.remainingDays !== undefined && a.remainingDays !== null ? a.remainingDays : "-"}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                )}
-              </div>
-            </>
-          ) : (
-            <div className="project-details-placeholder">Select a project to view work assignments.</div>
-          )}
-        </div>
-      </div>
+      )}
     </div>
   );
 };

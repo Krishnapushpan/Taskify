@@ -154,7 +154,7 @@ const MyWork = () => {
                             <td>{a.workDescription}</td>
                             <td>{a.dueDate ? new Date(a.dueDate).toLocaleDateString() : "-"}</td>
                             <td>{a.status}</td>
-                            <td>{remainingDays}</td>
+                            <td>{remainingDays < 0 ? `Overdue (${Math.abs(remainingDays)})` : remainingDays}</td>
                           </tr>
                         );
                       })}

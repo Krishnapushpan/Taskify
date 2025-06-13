@@ -145,6 +145,11 @@ export const getTeamByProject = async (req, res) => {
 // Get all team assignments (for admin)
 export const getAllTeamAssignments = async (req, res) => {
   try {
+    // Check if user is admin
+    if (req.role !== "admin") {
+      return res.status(403).json({ message: "Access denied. Admin privileges required." });
+    }
+
     const teamAssignments = await AssignTeam.find()
       .populate("project", "projectName description startDate endDate budget projectFile")
       .populate("teamLead", "fullName email role position")
@@ -172,6 +177,12 @@ export const updateAssignmentStatus = async (req, res) => {
     }
     assignment.status = status;
     await assignment.save();
+
+    // Also update the related Project's status
+    if (assignment.project) {
+      await Project.findByIdAndUpdate(assignment.project, { status });
+    }
+
     res.status(200).json({ message: "Status updated", assignment });
   } catch (error) {
     res
@@ -383,5 +394,58 @@ export const getProjectsAssignedToUser = async (req, res) => {
     res.status(200).json(Object.values(uniqueProjects));
   } catch (error) {
     res.status(500).json({ message: "Failed to get projects for user", error: error.message });
+  }
+};
+
+// Get all projects (for admin)
+export const getAllProjects = async (req, res) => {
+  try {
+    // Check if user is admin
+    // if (req.user.role !== "admin") {
+    //   return res.status(403).json({ message: "Access denied. Admin privileges required." });
+    // }
+
+    const projects = await Project.find()
+      .populate("addedBy", "fullName email role")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json(projects);
+  } catch (error) {
+    console.error("Get all projects error:", error);
+    res.status(500).json({
+      message: "Failed to get projects",
+      error: error.message,
+    });
+  }
+};
+
+// Update project status (admin only)
+export const updateProjectStatus = async (req, res) => {
+  try {
+    // Check if user is admin
+    if (req.user.role !== "admin") {
+      return res.status(403).json({ message: "Access denied. Admin privileges required." });
+    }
+
+    const { projectId } = req.params;
+    const { status } = req.body;
+
+    const project = await Project.findByIdAndUpdate(
+      projectId,
+      { status },
+      { new: true }
+    );
+
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+
+    res.status(200).json({ message: "Project status updated", project });
+  } catch (error) {
+    console.error("Update project status error:", error);
+    res.status(500).json({
+      message: "Failed to update project status",
+      error: error.message,
+    });
   }
 };

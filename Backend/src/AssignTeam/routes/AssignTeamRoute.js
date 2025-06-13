@@ -11,11 +11,18 @@ import {
   getAssignedUsersForProject,
   getProjectCountsByClient,
   getAssignmentFile,
-  getProjectsAssignedToUser
+  getProjectsAssignedToUser,
+  getAllProjects,
+  updateProjectStatus
 } from "../controllers/AssignTeamController.js";
 import { verifyToken } from "../../Middleware/auth.js";
 
 const router = express.Router();
+
+// Admin routes
+router.get("/admin/all-projects", verifyToken, getAllProjects);
+router.get("/admin/all-assignments", verifyToken, getAllTeamAssignments);
+router.patch("/admin/project/:projectId/status", verifyToken, updateProjectStatus);
 
 // Assign team to a project (requires authentication)
 router.post("/assign", verifyToken, assignTeam);

@@ -11,6 +11,8 @@ import Login from "./Pages/Signup_Login/Login";
 import Signup from "./Pages/Signup_Login/Signup";
 import AssignWork from "./Pages/AssignWork/AssignWork";
 import ProtectedRoute from "./Components/ProtectedRoute";
+import ViewDetails from "./Pages/Projects/ViewDetails";
+import Projects from "./Pages/Projects/Projects";
 // import UserList from "./Pages/UserList";
 function App() {
   return (
@@ -59,6 +61,14 @@ function App() {
           }
         />
         <Route
+          path="/projects"
+          element={
+            <ProtectedRoute>
+              <Projects />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/view-more-projects"
           element={
             <ProtectedRoute>
@@ -79,6 +89,14 @@ function App() {
           element={
             <ProtectedRoute>
               <AssignWork />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/view-details"
+          element={
+            <ProtectedRoute>
+              <ViewDetails />
             </ProtectedRoute>
           }
         />
