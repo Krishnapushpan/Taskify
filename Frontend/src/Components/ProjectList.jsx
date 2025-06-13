@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import { FaSyncAlt, FaWindowMinimize, FaTimes, FaBell, FaTrash } from "react-icons/fa";
+import { FaSyncAlt, FaWindowMinimize, FaTimes, FaBell, FaTrash, FaUpload, FaDownload } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -31,7 +31,8 @@ const ProjectList = () => {
   const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const notificationDropdownRef = useRef(null);
-
+  const [selectedFile, setSelectedFile] = useState({});
+  const [uploading, setUploading] = useState({});
   useEffect(() => {
     const fetchAssignments = async () => {
       try {
@@ -149,11 +150,24 @@ const ProjectList = () => {
 
   const handleStatusChange = async (assignmentId, newStatus) => {
     try {
+      const formData = new FormData();
+      formData.append("status", newStatus);
+      
+      if (selectedFile) {
+        formData.append("workFile", selectedFile);
+      }
+  
       await axios.patch(
         `${import.meta.env.VITE_API_URL}/api/teams/${assignmentId}/status`,
-        { status: newStatus },
-        { withCredentials: true }
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          withCredentials: true
+        }
       );
+  
       setAssignments((prev) =>
         prev.map((a) =>
           a._id === assignmentId
@@ -166,27 +180,84 @@ const ProjectList = () => {
         )
       );
       setEditingStatusId(null);
+      setSelectedFile(null);
     } catch (err) {
       alert("Failed to update status");
     }
   };
 
-  // // Search handler for clients
-  // const handleSearch = async () => {
-  //   if (!searchTerm.trim()) return;
-  //   setIsLoading(true);
-  //   try {
-  //     const response = await axios.get(
-  //       `${import.meta.env.VITE_API_URL}/api/teams/search-by-project-name?projectName=${encodeURIComponent(searchTerm)}`,
-  //       { withCredentials: true }
-  //     );
-  //     setAssignments(response.data);
-  //   } catch (err) {
-  //     setAssignments([]);
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
+  const handleFileChange = (assignmentId, file) => {
+    setSelectedFile(prev => ({ ...prev, [assignmentId]: file }));
+  };
+
+  const handleFileUpload = async (assignmentId) => {
+    const file = selectedFile[assignmentId];
+    if (!file) {
+      alert("Please select a file first.");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      alert("File size should not exceed 5MB");
+      return;
+    }
+    try {
+      setUploading(prev => ({ ...prev, [assignmentId]: true }));
+      const formData = new FormData();
+      formData.append("workFile", file);
+      await axios.patch(
+        `${import.meta.env.VITE_API_URL}/api/teams/${assignmentId}/status`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+          withCredentials: true,
+        }
+      );
+      const assignment = assignments.find(a => a._id === assignmentId);
+      const userData = JSON.parse(localStorage.getItem("user"));
+      const fileFormData = new FormData();
+      fileFormData.append("file", file);
+      fileFormData.append("projectName", assignment.projectName || assignment.project?.projectName);
+      fileFormData.append("uploadedBy", userData.userid);
+      await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/file-uploads/`,
+        fileFormData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+          withCredentials: true,
+        }
+      );
+      alert("File uploaded successfully!");
+      setSelectedFile(prev => ({ ...prev, [assignmentId]: null }));
+      setAssignments(prev => prev.map(a => a._id === assignmentId ? { ...a, workFile: { data: true } } : a));
+    } catch (err) {
+      alert("Failed to upload file");
+    } finally {
+      setUploading(prev => ({ ...prev, [assignmentId]: false }));
+    }
+  };
+
+  const handleDownloadFile = async (assignmentId) => {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/api/teams/work-file/${assignmentId}`,
+        {
+          responseType: 'blob',
+          withCredentials: true
+        }
+      );
+      const blob = new Blob([response.data], { type: response.headers['content-type'] });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = response.headers['content-disposition'].split('filename=')[1].replace(/"/g, '');
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      alert("Failed to download file.");
+    }
+  };
 
   const handleEditPercentageClick = (assignment) => {
     setEditingPercentageId(assignment._id);
@@ -243,6 +314,7 @@ const ProjectList = () => {
       alert("Failed to send notification");
     }
   };
+
 
   // Add function to fetch notifications
   const fetchNotifications = async () => {
@@ -301,6 +373,20 @@ const ProjectList = () => {
       setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
     } catch (error) {
       console.error("Failed to mark notifications as read", error);
+    }
+  };
+
+  const handleDeleteFile = async (assignmentId) => {
+    if (!window.confirm("Are you sure you want to delete this file?")) return;
+    try {
+      await axios.delete(
+        `${import.meta.env.VITE_API_URL}/api/teams/work-file/${assignmentId}`,
+        { withCredentials: true }
+      );
+      alert("File deleted successfully!");
+      setAssignments((prev) => prev.map(a => a._id === assignmentId ? { ...a, workFile: null } : a));
+    } catch (err) {
+      alert("Failed to delete file");
     }
   };
 
@@ -434,12 +520,15 @@ const ProjectList = () => {
                   <th>Start Date</th>
                   <th>Due Date</th>
                   <th>Status</th>
+                  {user?.role === "Team Lead" && <th>Assign Work</th>}
                   <th>Progress</th>
                   {user?.role === "Client" && <th>Team Manager</th>}
-                  {user?.role !== "Client" && !isCompactView && user?.role !== "TeamLead" && <th>Team Lead</th>}
-                  {user?.role !== "Client" && !isCompactView && <th>Team Members</th>}
-                  {user?.role !== "Client" && !isCompactView && <th>Students</th>}
+                  {user?.role !== "Client" && !isCompactView && user?.role !== "Team Lead" && <th>Team Lead</th>}
+                  {user?.role !== "Client" && !isCompactView &&  user?.role !== "Team Lead" &&<th>Team Members</th>}
+                  {user?.role !== "Client" && !isCompactView  && user?.role !== "Team Lead" &&<th>Students</th>}
                   {user?.role === "Client" && <th>Schedule Meeting</th>}
+                  {user?.role === "Team Lead" && <th>Work File</th>}
+                  {user?.role === "Client" || user?.role === "admin" &&<th>Documents</th>}
                 </tr>
               </thead>
               <tbody>
@@ -485,21 +574,31 @@ const ProjectList = () => {
                         <td>{formatDate(a.dueDate || a.project?.endDate)}</td>
                         <td>
                           {editingStatusId === a._id ? (
-                            <select
-                              className="status-dropdown"
-                              value={statusUpdate}
-                              onChange={(e) => {
-                                setStatusUpdate(e.target.value);
-                                handleStatusChange(a._id, e.target.value);
-                              }}
-                              autoFocus
-                            >
-                              {statusOptions.map((opt) => (
-                                <option key={opt} value={opt}>
-                                  {opt}
-                                </option>
-                              ))}
-                            </select>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <select
+                                className="status-dropdown"
+                                value={statusUpdate}
+                                onChange={(e) => {
+                                  setStatusUpdate(e.target.value);
+                                  handleStatusChange(a._id, e.target.value);
+                                }}
+                                autoFocus
+                              >
+                                {statusOptions.map((opt) => (
+                                  <option key={opt} value={opt}>
+                                    {opt}
+                                  </option>
+                                ))}
+                              </select>
+                              {/* {isTeamLead && (
+                                <input
+                                  type="file"
+                                  onChange={handleFileChange}
+                                  className="text-sm"
+                                  accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
+                                />
+                              )} */}
+                            </div>
                           ) : (
                             <>
                               {a.status || a.project?.status || "N/A"}
@@ -520,37 +619,39 @@ const ProjectList = () => {
                                       Start Project
                                     </button>
                                   )}
-                                  <button
-                                    className="assign-work-btn"
-                                    style={
-                                      isCompactView ? {} : { marginLeft: "8px" }
-                                    }
-                                    onClick={() =>
-                                      navigate(`/assign-work/${a._id}`, {
-                                        state: {
-                                          projectName:
-                                            a.projectName ||
-                                            a.project?.projectName,
-                                          description:
-                                            a.description ||
-                                            a.project?.description,
-                                          startDate:
-                                            a.startDate || a.project?.startDate,
-                                          endDate:
-                                            a.dueDate || a.project?.endDate,
-                                          projectId: a._id,
-                                          project: a.project,
-                                        },
-                                      })
-                                    }
-                                  >
-                                    Assign Work
-                                  </button>
+                                  
                                 </>
                               )}
                             </>
                           )}
                         </td>
+                        {user?.role === "Team Lead" &&<td> {isTeamLead && (
+                          <button
+                          className="assign-work-btn"
+                          style={
+                            isCompactView ? {} : { marginLeft: "8px" }
+                          }
+                          onClick={() =>
+                            navigate(`/assign-work/${a._id}`, {
+                              state: {
+                                projectName:
+                                  a.projectName ||
+                                  a.project?.projectName,
+                                description:
+                                  a.description ||
+                                  a.project?.description,
+                                startDate:
+                                  a.startDate || a.project?.startDate,
+                                endDate:
+                                  a.dueDate || a.project?.endDate,
+                                projectId: a._id,
+                                project: a.project,
+                              },
+                            })
+                          }
+                        >
+                          Assign Work
+                        </button>)}</td>}
                         <td>
                           {editingPercentageId === a._id ? (
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -586,17 +687,17 @@ const ProjectList = () => {
                         {/* Team Manager column for client only */}
                         {user?.role === "Client" && <td>Admin</td>}
                         {/* Only show these columns if not client */}
-                        {user?.role !== "Client" && !isCompactView && (
+                        {user?.role !== "Client" && user?.role !== "Team Lead" && !isCompactView && (
                           <td>{a.teamLead?.fullName || "N/A"}</td>
                         )}
-                        {user?.role !== "Client" && !isCompactView && (
+                        {user?.role !== "Client" && user?.role !== "Team Lead" && !isCompactView && (
                           <td>
                             {a.teamMembers && a.teamMembers.length > 0
                               ? a.teamMembers.map((m) => m.fullName).join(", ")
                               : "N/A"}
                           </td>
                         )}
-                        {user?.role !== "Client" && !isCompactView && (
+                        {user?.role !== "Client" && user?.role !== "Team Lead" && !isCompactView &&  (
                           <td>
                             {a.students && a.students.length > 0
                               ? a.students.map((s) => s.fullName).join(", ")
@@ -678,6 +779,28 @@ const ProjectList = () => {
                               </a>
                             </td>
                           )
+                        )}
+                        {user?.role === "Team Lead" && (
+                          <td>
+                            <input
+                              type="file"
+                              onChange={e => handleFileChange(a._id, e.target.files[0])}
+                              className="text-sm"
+                              accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
+                            />
+                            {selectedFile[a._id] && (
+                              <button
+                                onClick={() => handleFileUpload(a._id)}
+                                disabled={uploading[a._id]}
+                                style={{ marginLeft: 8, padding: '2px 8px' }}
+                              >
+                                {uploading[a._id] ? 'Uploading...' : 'Upload'}
+                              </button>
+                            )}
+                            {!a.workFile || !a.workFile.data ? (
+                              <span style={{ color: '#aaa', marginLeft: 8 }}>No File</span>
+                            ) : null}
+                          </td>
                         )}
                       </tr>
                     );

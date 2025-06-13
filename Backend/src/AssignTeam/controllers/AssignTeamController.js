@@ -176,6 +176,16 @@ export const updateAssignmentStatus = async (req, res) => {
       return res.status(404).json({ message: "Assignment not found" });
     }
     assignment.status = status;
+
+    // Handle file upload if present
+    if (req.file) {
+      assignment.workFile = {
+        data: req.file.buffer,
+        contentType: req.file.mimetype,
+        originalName: req.file.originalname,
+      };
+    }
+
     await assignment.save();
 
     // Also update the related Project's status
@@ -447,5 +457,36 @@ export const updateProjectStatus = async (req, res) => {
       message: "Failed to update project status",
       error: error.message,
     });
+  }
+};
+
+// Serve the uploaded work file
+export const getWorkFile = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const assignment = await AssignTeam.findById(id);
+    if (!assignment || !assignment.workFile || !assignment.workFile.data) {
+      return res.status(404).json({ message: "File not found" });
+    }
+    res.set('Content-Type', assignment.workFile.contentType);
+    res.set('Content-Disposition', `inline; filename="${assignment.workFile.originalName}"`);
+    res.send(assignment.workFile.data);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch file", error: error.message });
+  }
+};
+
+export const deleteWorkFile = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const assignment = await AssignTeam.findById(id);
+    if (!assignment || !assignment.workFile || !assignment.workFile.data) {
+      return res.status(404).json({ message: "File not found" });
+    }
+    assignment.workFile = undefined;
+    await assignment.save();
+    res.status(200).json({ message: "File deleted" });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to delete file", error: error.message });
   }
 };

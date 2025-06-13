@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./List.css";
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const ClientList = () => {
   const [clients, setClients] = useState([]);
@@ -9,6 +10,7 @@ const ClientList = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     // Check if user is admin
@@ -39,7 +41,7 @@ const ClientList = () => {
 
   const handleEdit = (id) => {
     const client = clients.find((c) => c._id === id);
-    setEditClient({ ...client });
+    setEditClient({ ...client, password: '' });
     setModalOpen(true);
   };
 
@@ -101,6 +103,7 @@ const ClientList = () => {
                 <th>Email</th>
                 <th>Phone Number</th>
                 <th>Position</th>
+                <th>Password</th>
                 {isAdmin && <th>Actions</th>}
               </tr>
             </thead>
@@ -112,6 +115,7 @@ const ClientList = () => {
                   <td>{client.email}</td>
                   <td>{client.phone}</td>
                   <td>{client.position || "N/A"}</td>
+                  <td>******</td>
                   {isAdmin && (
                     <td>
                       <button
@@ -178,6 +182,32 @@ const ClientList = () => {
                 onChange={handleModalChange}
                 className="modal-input"
               />
+            </label>
+            <label className="modal-label" style={{ position: 'relative' }}>
+               new Password: (Not Mandatory)
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                value={editClient.password || ''}
+                onChange={handleModalChange}
+                className="modal-input"
+                style={{ paddingRight: '30px' }}
+              />
+              <span
+                onClick={() => setShowPassword((prev) => !prev)}
+                style={{
+                  position: 'absolute',
+                  right: '10px',
+                  top: '70%',
+                  transform: 'translateY(-50%)',
+                  cursor: 'pointer',
+                  color: '#888',
+                  fontSize: '18px',
+                }}
+                title={showPassword ? 'Hide Password' : 'Show Password'}
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </span>
             </label>
             <div className="modal-actions">
               <button className="client-edit-btn" onClick={handleModalSave}>

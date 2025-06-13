@@ -17,6 +17,8 @@ import ProjectCount from "../../Components/ProjectCount";
 import Meeting from "../Meeting/Meeting";
 import Projects from "../Projects/Projects";
 import MyWork from "../MyWork/MyWork";
+import Documents from "../Documents/Documents";
+import WorkDocuments from "../Documents/WorkDocuments";
 
 const AdminDashBoard = () => {
   const [selectedItem, setSelectedItem] = useState(null);
@@ -145,6 +147,10 @@ const AdminDashBoard = () => {
           <Projects />
         ) : selectedItem === "My Work" ? (
           <MyWork />
+        ) : selectedItem === "Documents" ? (
+          <Documents />
+        ) : selectedItem === "WorkDocuments" ? (
+          <WorkDocuments />
         ) : (
           <>
             <h1

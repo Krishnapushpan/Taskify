@@ -1,4 +1,5 @@
 import express from "express";
+import multer from "multer";
 import {
   createWorkAssignment,
   getAllWorkAssignments,
@@ -16,17 +17,23 @@ import {
   getProjectsByTeamLead,
   getWorkAssignmentsByProjectNameStatusLogic,
   getWorkCounts,
-  getPersonalWorkAssignments
+  getPersonalWorkAssignments,
+  getWorkFile
 } from "../controllers/AssignWorkController.js";
 import { verifyToken } from "../../Middleware/auth.js";
 
 const router = express.Router();
 
-// Create new work assignment
-router.post("/create", verifyToken, createWorkAssignment);
+// Configure multer for memory storage
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  },
+});
 
-// Alternative endpoint for creating assignments (used in frontend)
-router.post("/assignments/create", verifyToken, createWorkAssignment);
+// Create new work assignment with file upload
+router.post("/", verifyToken, upload.single('workFile'), createWorkAssignment);
 
 // Get all work assignments
 router.get("/all", verifyToken, getAllWorkAssignments);
@@ -40,7 +47,7 @@ router.get(
 );
 
 // Update work assignment status
-router.put("/:id/status", verifyToken, updateWorkAssignmentStatus);
+router.put("/:id/status", verifyToken, upload.single('workFile'), updateWorkAssignmentStatus);
 
 // Delete work assignment
 router.delete("/:id", verifyToken, deleteWorkAssignment);
@@ -74,5 +81,8 @@ router.get("/project-by-name/:projectName/assignments-by-status", getWorkAssignm
 
 // Get work counts
 router.get("/counts", getWorkCounts);
+
+// Get work file
+router.get("/:id/file", verifyToken, getWorkFile);
 
 export default router;

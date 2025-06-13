@@ -161,6 +161,22 @@ const Sidebar = ({ onItemClick }) => {
             <span>My Work</span>
           </li>
         )}
+        {(userRole === "Team Lead" || userRole === "admin") && (
+          <li
+            onClick={() => onItemClick && onItemClick("Documents")}
+            style={{ cursor: "pointer" }}
+          >
+            <FaFileAlt className="sidebar-icon" />
+            <span>Documents</span>
+          </li>
+        )}
+        {(userRole !== "Client")&&(<li
+          onClick={() => onItemClick && onItemClick("WorkDocuments")}
+          style={{ cursor: "pointer" }}
+        >
+          <FaFileAlt className="sidebar-icon" />
+          <span>Work Documents</span>
+        </li>)}
       </ul>
       {/* Logout Button */}
       <div className="sidebar-footer">

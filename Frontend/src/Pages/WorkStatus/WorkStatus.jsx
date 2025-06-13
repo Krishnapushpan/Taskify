@@ -42,7 +42,7 @@ const WorkStatus = () => {
   return (
     <div className="project-list-container">
       <div className="project-list-header">
-        <h2 className="project-list-title">All Work Assignments</h2>
+        <h2 className="project-list-title">All Work Assignments </h2>
       </div>
       <table className="project-list-table">
         <thead>

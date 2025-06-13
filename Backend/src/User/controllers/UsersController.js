@@ -211,7 +211,7 @@ export const getClients = async (req, res) => {
   try {
     // Find all users with role 'client'
     const clients = await User.find({ role: "Client" })
-      .select("fullName email phone position") // Only select needed fields
+      .select("fullName email phone position password") // Only select needed fields
       .sort({ createdAt: -1 }); // Sort by newest first
 
     res.status(200).json({
@@ -314,6 +314,11 @@ export const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
     const updateData = req.body;
+    if (updateData.password) {
+      // Hash the new password before saving
+      const bcrypt = await import('bcrypt');
+      updateData.password = await bcrypt.default.hash(updateData.password, 10);
+    }
     const updatedUser = await User.findByIdAndUpdate(id, updateData, { new: true, runValidators: true });
     if (!updatedUser) {
       return res.status(404).json({ message: "User not found" });

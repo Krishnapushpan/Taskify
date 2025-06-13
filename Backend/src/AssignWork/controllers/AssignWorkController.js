@@ -43,6 +43,15 @@ export const createWorkAssignment = async (req, res) => {
       assignmentData.teamLead = teamLeadId;
     }
 
+    // Add file if uploaded
+    if (req.file) {
+      assignmentData.workFile = {
+        data: req.file.buffer,
+        contentType: req.file.mimetype,
+        originalName: req.file.originalname,
+      };
+    }
+
     const newAssignment = new AssignWork(assignmentData);
 
     await newAssignment.save();
@@ -105,20 +114,25 @@ export const updateWorkAssignmentStatus = async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
-
+    const updateData = {
+      status,
+      updatedAt: Date.now(),
+    };
+    if (req.file) {
+      updateData.workFile = {
+        data: req.file.buffer,
+        contentType: req.file.mimetype,
+        originalName: req.file.originalname,
+      };
+    }
     const updatedAssignment = await AssignWork.findByIdAndUpdate(
       id,
-      {
-        status,
-        updatedAt: Date.now(),
-      },
+      updateData,
       { new: true }
     );
-
     if (!updatedAssignment) {
       return res.status(404).json({ message: "Work assignment not found" });
     }
-
     res.status(200).json({
       message: "Work assignment status updated successfully",
       assignment: updatedAssignment,
@@ -510,5 +524,21 @@ export const getPersonalWorkAssignments = async (req, res) => {
     res.status(200).json(assignments);
   } catch (error) {
     res.status(500).json({ message: "Failed to get personal work assignments", error: error.message });
+  }
+};
+
+// Serve the uploaded work file
+export const getWorkFile = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const work = await AssignWork.findById(id);
+    if (!work || !work.workFile || !work.workFile.data) {
+      return res.status(404).json({ message: "File not found" });
+    }
+    res.set('Content-Type', work.workFile.contentType);
+    res.set('Content-Disposition', `inline; filename="${work.workFile.originalName}"`);
+    res.send(work.workFile.data);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch file", error: error.message });
   }
 };

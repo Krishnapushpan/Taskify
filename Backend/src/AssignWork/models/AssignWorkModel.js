@@ -59,6 +59,11 @@ const assignWorkSchema = new mongoose.Schema({
     max: 100,
     default: 0
   },
+  workFile: {
+    data: Buffer,
+    contentType: String,
+    originalName: String,
+  }
 });
 
 const AssignWork = mongoose.model("AssignWork", assignWorkSchema);

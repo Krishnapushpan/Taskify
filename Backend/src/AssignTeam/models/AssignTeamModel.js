@@ -59,6 +59,11 @@ const assignTeamSchema = new mongoose.Schema({
     contentType: String,
     originalName: String,
   },
+  workFile: {
+    data: Buffer,
+    contentType: String,
+    originalName: String,
+  },
   createdAt: {
     type: Date,
     default: Date.now,

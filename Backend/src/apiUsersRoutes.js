@@ -6,6 +6,8 @@ import assignWorkRoutes from "./AssignWork/routes/AssignWorkRoute.js";
 import workCountRoutes from "./WorkCount/routes/WorkCountRoute.js";
 import meetingRoutes from "./Meetings/routes/MeetingRoute.js";
 import notificationRoutes from "./Notification/routes/NotificationRoute.js";
+import fileUploadRoutes from "./fileuploads/Route/FileUploadRoute.js";
+import workUploadRoutes from "./WorkUploads/Route/WorkUploadRoute.js";
 const router = express.Router();
 
 // User routes
@@ -28,5 +30,11 @@ router.use("/meetings", meetingRoutes);
 
 // Notification routes
 router.use("/notifications", notificationRoutes);
+
+// File Upload routes
+router.use("/file-uploads", fileUploadRoutes);
+
+// Work Upload routes
+router.use("/work-uploads", workUploadRoutes);
 
 export default router;
