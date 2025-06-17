@@ -161,13 +161,40 @@ const Sidebar = ({ onItemClick }) => {
             <span>My Work</span>
           </li>
         )}
+         {(userRole === "Team Lead" || userRole === "Team Member"  || userRole === "Student") && (
+          <li
+            onClick={() => onItemClick && onItemClick("Tasks")}
+            style={{ cursor: "pointer" }}
+          >
+            <FaTasks className="sidebar-icon" />
+            <span>My Tasks</span>
+          </li>
+        )}
+          {(userRole === "admin") && (
+          <li
+            onClick={() => onItemClick && onItemClick("Tasks")}
+            style={{ cursor: "pointer" }}
+          >
+            <FaTasks className="sidebar-icon" />
+            <span>Tasks</span>
+          </li>
+        )}
         {(userRole === "Team Lead" || userRole === "admin") && (
           <li
             onClick={() => onItemClick && onItemClick("Documents")}
             style={{ cursor: "pointer" }}
           >
             <FaFileAlt className="sidebar-icon" />
-            <span>Documents</span>
+            <span> My Documents</span>
+          </li>
+        )}
+           {(userRole === "Team Member" || userRole === "Student") && (
+          <li
+            onClick={() => onItemClick && onItemClick("Documents")}
+            style={{ cursor: "pointer" }}
+          >
+            <FaFileAlt className="sidebar-icon" />
+            <span> Team Lead Documents</span>
           </li>
         )}
         {(userRole !== "Client")&&(<li

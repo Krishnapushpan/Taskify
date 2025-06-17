@@ -75,3 +75,17 @@ export const getFilesByUploadedBy = async (req, res) => {
     res.status(500).json({ message: "Failed to fetch files uploaded by user", error: error.message });
   }
 };
+
+// Get files by project names (array)
+export const getFilesByProjectNames = async (req, res) => {
+  try {
+    let { projectNames } = req.body;
+    if (!Array.isArray(projectNames)) {
+      return res.status(400).json({ message: "projectNames must be an array" });
+    }
+    const files = await FileUpload.find({ projectName: { $in: projectNames } }).populate("uploadedBy", "fullName email");
+    res.status(200).json(files);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch files by project names", error: error.message });
+  }
+};

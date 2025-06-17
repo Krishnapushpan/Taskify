@@ -19,6 +19,7 @@ import Projects from "../Projects/Projects";
 import MyWork from "../MyWork/MyWork";
 import Documents from "../Documents/Documents";
 import WorkDocuments from "../Documents/WorkDocuments";
+import Tasks from "../Tasks/Tasks";
 
 const AdminDashBoard = () => {
   const [selectedItem, setSelectedItem] = useState(null);
@@ -147,6 +148,8 @@ const AdminDashBoard = () => {
           <Projects />
         ) : selectedItem === "My Work" ? (
           <MyWork />
+        ) : selectedItem === "Tasks" ? (
+          <Tasks />
         ) : selectedItem === "Documents" ? (
           <Documents />
         ) : selectedItem === "WorkDocuments" ? (

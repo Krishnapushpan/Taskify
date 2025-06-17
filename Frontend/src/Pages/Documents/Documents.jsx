@@ -6,23 +6,70 @@ const Documents = () => {
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [userRole, setUserRole] = useState("");
 
   useEffect(() => {
     const fetchDocuments = async () => {
       try {
         setLoading(true);
         const userData = JSON.parse(localStorage.getItem("user"));
-        const userRole = userData?.role;
+        setUserRole(userData?.role);
         const userId = userData?.userid;
-        let response;
-        if (userRole === "Team Lead") {
-          response = await axios.get(`${import.meta.env.VITE_API_URL}/api/file-uploads/uploaded-by/${userId}`, { withCredentials: true });
-        } else if (userRole === "Admin" || userRole === "admin") {
-          response = await axios.get(`${import.meta.env.VITE_API_URL}/api/file-uploads/`, { withCredentials: true });
+        let files = [];
+  
+        if (userData.role === "Team Lead") {
+          // Team Lead: show their own uploads
+          const response = await axios.get(
+            `${import.meta.env.VITE_API_URL}/api/file-uploads/uploaded-by/${userId}`,
+            { withCredentials: true }
+          );
+          files = response.data;
+        } else if (userData.role === "Admin" || userData.role === "admin") {
+          // Admin: show all files
+          const response = await axios.get(
+            `${import.meta.env.VITE_API_URL}/api/file-uploads/`,
+            { withCredentials: true }
+          );
+          files = response.data;
+        } else if (userData.role === "Team Member" || userData.role === "Student") {
+          // Team Member/Student: show files by assigned project names
+          // 1. Fetch assigned works
+          const worksRes = await axios.get(
+            `${import.meta.env.VITE_API_URL}/api/works/personal`,
+            {
+              params: { userId: userId },
+              withCredentials: true,
+            }
+          );
+          // 2. Get unique project names
+          const projectNames = [
+            ...new Set(
+              (worksRes.data || [])
+                .map((work) => work.projectName || work.projectId?.projectName)
+                .filter(Boolean)
+            ),
+          ];
+          // 3. Fetch files by project names
+          if (projectNames.length > 0) {
+            const filesRes = await axios.post(
+              `${import.meta.env.VITE_API_URL}/api/file-uploads/by-projects`,
+              { projectNames },
+              { withCredentials: true }
+            );
+            files = filesRes.data;
+          } else {
+            files = [];
+          }
         } else {
-          response = await axios.get(`${import.meta.env.VITE_API_URL}/api/file-uploads/`, { withCredentials: true });
+          // Default: show all files
+          const response = await axios.get(
+            `${import.meta.env.VITE_API_URL}/api/file-uploads/`,
+            { withCredentials: true }
+          );
+          files = response.data;
         }
-        setDocuments(response.data);
+  
+        setDocuments(files);
       } catch (err) {
         setError("Failed to fetch documents");
       } finally {
@@ -76,7 +123,10 @@ const Documents = () => {
                   <td>{idx + 1}</td>
                   <td>{doc.projectName}</td>
                   <td>{formatDate(doc.uploadDate)}</td>
-                  <td>{doc.uploadedBy?.fullName || doc.uploadedBy || "N/A"}</td>
+                  {/* Show uploadedBy for team members and students */}
+                  {(userRole === "Team Member" || userRole === "Student") && (
+                    <td>{doc.uploadedBy?.fullName || doc.uploadedBy || "N/A"}</td>
+                  )}
                   <td>
                     <a
                       href={`${import.meta.env.VITE_API_URL}/api/file-uploads/${doc._id}`}
