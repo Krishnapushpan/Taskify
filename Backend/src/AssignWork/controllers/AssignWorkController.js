@@ -3,6 +3,8 @@ import AssignWork from "../models/AssignWorkModel.js";
 // Create new work assignment
 export const createWorkAssignment = async (req, res) => {
   try {
+    console.log("Received work assignment data:", req.body);
+    
     const {
       projectId,
       projectName,
@@ -16,14 +18,28 @@ export const createWorkAssignment = async (req, res) => {
       percentage
     } = req.body;
 
+    // Validate required fields
+    if (!projectId || !projectName || !workDescription) {
+      return res.status(400).json({
+        message: "Missing required fields: projectId, projectName, and workDescription are required"
+      });
+    }
+
+    if (!teamMemberIds?.length && !studentIds?.length) {
+      return res.status(400).json({
+        message: "At least one team member or student must be assigned"
+      });
+    }
+
     // Create assignment object with required fields
     const assignmentData = {
       projectId,
       projectName,
       workDescription,
-      teamMembers: teamMemberIds,
-      students: studentIds,
-      percentage: percentage || 0
+      teamMembers: teamMemberIds || [],
+      students: studentIds || [],
+      percentage: percentage || 0,
+      status: status || "Pending"
     };
 
     // Add optional fields if they exist
@@ -33,10 +49,6 @@ export const createWorkAssignment = async (req, res) => {
 
     if (priority) {
       assignmentData.priority = priority;
-    }
-
-    if (status) {
-      assignmentData.status = status;
     }
 
     if (teamLeadId) {
@@ -52,9 +64,12 @@ export const createWorkAssignment = async (req, res) => {
       };
     }
 
-    const newAssignment = new AssignWork(assignmentData);
+    console.log("Creating assignment with data:", assignmentData);
 
+    const newAssignment = new AssignWork(assignmentData);
     await newAssignment.save();
+
+    console.log("Assignment created successfully:", newAssignment._id);
 
     res.status(201).json({
       message: "Work assigned successfully",
@@ -65,6 +80,7 @@ export const createWorkAssignment = async (req, res) => {
     res.status(500).json({
       message: "Failed to assign work",
       error: error.message,
+      details: error.stack
     });
   }
 };

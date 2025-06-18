@@ -287,7 +287,7 @@ const AssignWork = () => {
         }
 
         return axios.post(
-          `${import.meta.env.VITE_API_URL}/api/works/create`,
+          `${import.meta.env.VITE_API_URL}/api/works`,
           assignmentData,
           {
             withCredentials: true,

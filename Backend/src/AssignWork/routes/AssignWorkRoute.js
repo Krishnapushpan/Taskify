@@ -46,6 +46,12 @@ router.get(
   getWorkAssignmentsByProject
 );
 
+// // Get personal work assignments
+// router.get("/personal/:userId", verifyToken, getPersonalWorkAssignments);
+
+// // Get work assignments by team lead (or all if no filter)
+// router.get("/by-teamlead", verifyToken, getWorkAssignmentsByTeamLead);
+
 // Update work assignment status
 router.put("/:id/status", verifyToken, upload.single('workFile'), updateWorkAssignmentStatus);
 

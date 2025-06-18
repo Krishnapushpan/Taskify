@@ -254,30 +254,50 @@ const Tasks = () => {
               </div>
               {isTeamLead && (
                 <div className="task-assignees">
-                  <div className="assignee-section">
-                    <strong>Team Members:</strong>
-                    {task.teamMembers?.length > 0 ? (
+                  {task.teamMembers?.length > 0 && (
+                    <div className="assignee-section">
+                      <strong>Team Members:</strong>
                       <ul>
                         {task.teamMembers.map((member) => (
                           <li key={member._id}>{member.fullName}</li>
                         ))}
                       </ul>
-                    ) : (
-                      <span>None assigned</span>
-                    )}
-                  </div>
-                  <div className="assignee-section">
-                    <strong>Students:</strong>
-                    {task.students?.length > 0 ? (
+                    </div>
+                  )}
+                  {task.students?.length > 0 && (
+                    <div className="assignee-section">
+                      <strong>Students:</strong>
                       <ul>
                         {task.students.map((student) => (
                           <li key={student._id}>{student.fullName}</li>
                         ))}
                       </ul>
-                    ) : (
-                      <span>None assigned</span>
-                    )}
-                  </div>
+                    </div>
+                  )}
+                </div>
+              )}
+              {!isTeamLead && (
+                <div className="task-assignees">
+                  {task.teamMembers?.length > 0 && (
+                    <div className="assignee-section">
+                      <strong>Team Members:</strong>
+                      <ul>
+                        {task.teamMembers.map((member) => (
+                          <li key={member._id}>{member.fullName}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {task.students?.length > 0 && (
+                    <div className="assignee-section">
+                      <strong>Students:</strong>
+                      <ul>
+                        {task.students.map((student) => (
+                          <li key={student._id}>{student.fullName}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
               )}
               {task.workFile && (

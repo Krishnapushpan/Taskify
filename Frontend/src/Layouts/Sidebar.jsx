@@ -179,7 +179,7 @@ const Sidebar = ({ onItemClick }) => {
             <span>Tasks</span>
           </li>
         )}
-        {(userRole === "Team Lead" || userRole === "admin") && (
+        {(userRole === "Team Lead" ) && (
           <li
             onClick={() => onItemClick && onItemClick("Documents")}
             style={{ cursor: "pointer" }}
@@ -188,7 +188,7 @@ const Sidebar = ({ onItemClick }) => {
             <span> My Documents</span>
           </li>
         )}
-           {(userRole === "Team Member" || userRole === "Student") && (
+           {(userRole === "Team Member" || userRole === "Student" || userRole === "admin") && (
           <li
             onClick={() => onItemClick && onItemClick("Documents")}
             style={{ cursor: "pointer" }}
