@@ -109,7 +109,7 @@ const Documents = () => {
               <th>#</th>
               <th>Project Name</th>
               <th>Uploaded Date</th>
-              <th>Uploaded By</th>
+              {(userRole === "Team Member" || userRole === "Student" || userRole === "admin") && (<th>Uploaded By</th>)}
               <th>Document</th>
               <th>Action</th>
             </tr>
@@ -124,7 +124,7 @@ const Documents = () => {
                   <td>{doc.projectName}</td>
                   <td>{formatDate(doc.uploadDate)}</td>
                   {/* Show uploadedBy for team members and students */}
-                  {(userRole === "Team Member" || userRole === "Student") && (
+                  {(userRole === "Team Member" || userRole === "Student" || userRole === "admin") && (
                     <td>{doc.uploadedBy?.fullName || doc.uploadedBy || "N/A"}</td>
                   )}
                   <td>
