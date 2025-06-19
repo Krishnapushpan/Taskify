@@ -1,12 +1,13 @@
 import AssignWork from "../models/AssignWorkModel.js";
+import AssignTeam from "../../AssignTeam/models/AssignTeamModel.js";
 
 // Create new work assignment
 export const createWorkAssignment = async (req, res) => {
   try {
     console.log("Received work assignment data:", req.body);
-    
     const {
-      projectId,
+      assignTeamId,
+      projectId: directProjectId, // Allow direct projectId
       projectName,
       workDescription,
       teamMemberIds,
@@ -18,13 +19,27 @@ export const createWorkAssignment = async (req, res) => {
       percentage
     } = req.body;
 
-    // Validate required fields
-    if (!projectId || !projectName || !workDescription) {
-      return res.status(400).json({
-        message: "Missing required fields: projectId, projectName, and workDescription are required"
-      });
+    let projectId = directProjectId;
+
+    // If assignTeamId is provided, try to get projectId from AssignTeam
+    if (assignTeamId) {
+      try {
+        const assignTeam = await AssignTeam.findById(assignTeamId);
+        if (assignTeam) {
+          projectId = assignTeam.projectId || assignTeam.project; // Try both fields
+        }
+      } catch (err) {
+        console.warn("Failed to fetch AssignTeam:", err);
+        // Continue with directProjectId if AssignTeam fetch fails
+      }
     }
 
+    // Validate required fields
+    if (!projectName || !workDescription) {
+      return res.status(400).json({
+        message: "Missing required fields: projectName and workDescription are required"
+      });
+    }
     if (!teamMemberIds?.length && !studentIds?.length) {
       return res.status(400).json({
         message: "At least one team member or student must be assigned"
@@ -33,7 +48,7 @@ export const createWorkAssignment = async (req, res) => {
 
     // Create assignment object with required fields
     const assignmentData = {
-      projectId,
+      projectId, // Use the Project ObjectId from AssignTeam or direct input
       projectName,
       workDescription,
       teamMembers: teamMemberIds || [],
@@ -43,19 +58,9 @@ export const createWorkAssignment = async (req, res) => {
     };
 
     // Add optional fields if they exist
-    if (dueDate) {
-      assignmentData.dueDate = dueDate;
-    }
-
-    if (priority) {
-      assignmentData.priority = priority;
-    }
-
-    if (teamLeadId) {
-      assignmentData.teamLead = teamLeadId;
-    }
-
-    // Add file if uploaded
+    if (dueDate) assignmentData.dueDate = dueDate;
+    if (priority) assignmentData.priority = priority;
+    if (teamLeadId) assignmentData.teamLead = teamLeadId;
     if (req.file) {
       assignmentData.workFile = {
         data: req.file.buffer,
@@ -65,12 +70,9 @@ export const createWorkAssignment = async (req, res) => {
     }
 
     console.log("Creating assignment with data:", assignmentData);
-
     const newAssignment = new AssignWork(assignmentData);
     await newAssignment.save();
-
     console.log("Assignment created successfully:", newAssignment._id);
-
     res.status(201).json({
       message: "Work assigned successfully",
       assignment: newAssignment,
@@ -558,3 +560,111 @@ export const getWorkFile = async (req, res) => {
     res.status(500).json({ message: "Failed to fetch file", error: error.message });
   }
 };
+
+// Update work assignment
+export const updateWorkAssignment = async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log("Updating work assignment:", id);
+    console.log("Update data:", req.body);
+    
+    const {
+      projectId,
+      projectName,
+      workDescription,
+      teamMemberIds,
+      studentIds,
+      dueDate,
+      priority,
+      status,
+      teamLeadId,
+      percentage
+    } = req.body;
+
+    // Validate required fields
+    if (!projectId || !projectName || !workDescription) {
+      return res.status(400).json({
+        message: "Missing required fields: projectId, projectName, and workDescription are required"
+      });
+    }
+
+    if (!teamMemberIds?.length && !studentIds?.length) {
+      return res.status(400).json({
+        message: "At least one team member or student must be assigned"
+      });
+    }
+
+    // Find the existing assignment
+    const existingAssignment = await AssignWork.findById(id);
+    if (!existingAssignment) {
+      return res.status(404).json({
+        message: "Work assignment not found"
+      });
+    }
+
+    // Update the assignment
+    const updateData = {
+      projectId,
+      projectName,
+      workDescription,
+      teamMembers: teamMemberIds || [],
+      students: studentIds || [],
+      updatedAt: Date.now()
+    };
+
+    // Add optional fields if they exist
+    if (dueDate) {
+      updateData.dueDate = dueDate;
+    }
+
+    if (priority) {
+      updateData.priority = priority;
+    }
+
+    if (status) {
+      updateData.status = status;
+    }
+
+    if (teamLeadId) {
+      updateData.teamLead = teamLeadId;
+    }
+
+    if (percentage !== undefined) {
+      updateData.percentage = percentage;
+    }
+
+    // Add file if uploaded
+    if (req.file) {
+      updateData.workFile = {
+        data: req.file.buffer,
+        contentType: req.file.mimetype,
+        originalName: req.file.originalname,
+      };
+    }
+
+    console.log("Updating assignment with data:", updateData);
+
+    const updatedAssignment = await AssignWork.findByIdAndUpdate(
+      id,
+      updateData,
+      { new: true, runValidators: true }
+    ).populate("teamMembers", "fullName email role position")
+     .populate("students", "fullName email role")
+     .populate("teamLead", "fullName email role position");
+
+    console.log("Assignment updated successfully:", updatedAssignment._id);
+
+    res.status(200).json({
+      message: "Work assignment updated successfully",
+      assignment: updatedAssignment,
+    });
+  } catch (error) {
+    console.error("Update work assignment error:", error);
+    res.status(500).json({
+      message: "Failed to update work assignment",
+      error: error.message,
+      details: error.stack
+    });
+  }
+};
+

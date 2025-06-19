@@ -216,6 +216,7 @@ const ProjectList = () => {
       const userData = JSON.parse(localStorage.getItem("user"));
       const fileFormData = new FormData();
       fileFormData.append("file", file);
+      fileFormData.append("projectId", assignment.project?._id || assignment.projectId);
       fileFormData.append("projectName", assignment.projectName || assignment.project?.projectName);
       fileFormData.append("uploadedBy", userData.userid);
       await axios.post(
@@ -732,6 +733,7 @@ const ProjectList = () => {
                                       try {
                                         const userData = JSON.parse(localStorage.getItem("user"));
                                         await axios.post(`${import.meta.env.VITE_API_URL}/api/meetings`, {
+                                          projectId: a.project?._id || a.projectId,
                                           projectCreator: a.projectCreator || userData?.userid,
                                           fullName: userData?.fullName || '',
                                           projectName: a.projectName || a.project?.projectName || '',

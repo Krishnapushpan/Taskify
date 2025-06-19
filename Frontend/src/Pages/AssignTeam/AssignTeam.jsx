@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import {
   FaArrowLeft,
@@ -14,14 +14,18 @@ import {
 const AssignTeam = () => {
   const { projectId } = useParams();
   const navigate = useNavigate();
-  const [project, setProject] = useState(null);
+  const location = useLocation();
+  const isUpdateMode = location.state?.isUpdate || false;
+  const projectDataFromState = location.state?.project || null;
+  
+  const [project, setProject] = useState(projectDataFromState);
   const [teamLeads, setTeamLeads] = useState([]);
   const [teamMembers, setTeamMembers] = useState([]);
   const [students, setStudents] = useState([]);
   const [selectedTeamLead, setSelectedTeamLead] = useState(null);
   const [selectedTeamMembers, setSelectedTeamMembers] = useState([]);
   const [selectedStudents, setSelectedStudents] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(!projectDataFromState);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
@@ -30,7 +34,9 @@ const AssignTeam = () => {
     // Function to fetch project details
     const fetchProjectDetails = async () => {
       try {
-        setIsLoading(true);
+        if (!projectDataFromState) {
+          setIsLoading(true);
+        }
         setError("");
 
         // Get project data with any existing team assignment
@@ -137,7 +143,7 @@ const AssignTeam = () => {
     if (projectId) {
       fetchProjectDetails();
     }
-  }, [projectId]);
+  }, [projectId, projectDataFromState]);
 
   // Format date to display in DD/MM/YYYY format
   const formatDate = (dateString) => {
@@ -198,8 +204,12 @@ const AssignTeam = () => {
 
       console.log("Sending assignment data:", assignmentData);
 
+      const endpoint = isUpdateMode 
+        ? `${import.meta.env.VITE_API_URL}/api/teams/update`
+        : `${import.meta.env.VITE_API_URL}/api/teams/assign`;
+
       const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/teams/assign`,
+        endpoint,
         assignmentData,
         {
           withCredentials: true,
@@ -208,7 +218,7 @@ const AssignTeam = () => {
 
       console.log("Assignment response:", response.data);
 
-      setSuccessMessage("Team assigned successfully!");
+      setSuccessMessage(isUpdateMode ? "Team updated successfully!" : "Team assigned successfully!");
 
       // Navigate back to projects after a short delay
       setTimeout(() => {
@@ -284,7 +294,9 @@ const AssignTeam = () => {
     <div className="assign-team-page">
       <div className="assign-team-content">
         <div className="assign-team-header">
-          <h1 className="assign-team-title">Assign Team to Project</h1>
+          <h1 className="assign-team-title">
+            {isUpdateMode ? "Update Team for Project" : "Assign Team to Project"}
+          </h1>
           <Link to="/view-more-projects" className="back-button">
             <FaArrowLeft /> Back to Projects
           </Link>
@@ -301,10 +313,10 @@ const AssignTeam = () => {
               {/* Project header with name and description */}
               <div className="assign-team-project-header">
                 <div className="assign-team-project-name">
-                  {project.projectName}
+                  {project?.projectName}
                 </div>
                 <div className="assign-team-project-description">
-                  {project.description}
+                  {project?.description}
                 </div>
               </div>
 
@@ -316,7 +328,7 @@ const AssignTeam = () => {
                     Start Date
                   </div>
                   <div className="assign-team-detail-value">
-                    {formatDate(project.startDate)}
+                    {formatDate(project?.startDate)}
                   </div>
                 </div>
                 <div className="assign-team-detail">
@@ -325,10 +337,10 @@ const AssignTeam = () => {
                     Due Date
                   </div>
                   <div className="assign-team-detail-value">
-                    {formatDate(project.endDate)}
+                    {formatDate(project?.endDate)}
                   </div>
                 </div>
-                {project.budget && (
+                {project?.budget && (
                   <div className="assign-team-detail">
                     <div className="assign-team-detail-label">Budget</div>
                     <div className="assign-team-detail-value">
@@ -494,12 +506,12 @@ const AssignTeam = () => {
                         className="spinning"
                         style={{ marginRight: "10px" }}
                       />
-                      Assigning...
+                      {isUpdateMode ? "Updating..." : "Assigning..."}
                     </>
                   ) : (
                     <>
                       <FaCheckCircle style={{ marginRight: "10px" }} />
-                      Assign Team to Project
+                      {isUpdateMode ? "Update Team" : "Assign Team to Project"}
                     </>
                   )}
                 </button>

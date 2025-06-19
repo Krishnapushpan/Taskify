@@ -36,6 +36,7 @@ export const assignTeam = async (req, res) => {
 
     if (existingAssignment) {
       // Update existing assignment
+      existingAssignment.projectId = projectId;
       existingAssignment.teamLead = teamLeadId || existingAssignment.teamLead;
       existingAssignment.teamMembers =
         teamMemberIds || existingAssignment.teamMembers;
@@ -74,6 +75,7 @@ export const assignTeam = async (req, res) => {
       // Create new assignment
       const newAssignment = new AssignTeam({
         project: projectId,
+        projectId: projectId,
         teamLead: teamLeadId,
         teamMembers: teamMemberIds,
         students: studentIds,
@@ -119,6 +121,7 @@ export const assignTeam = async (req, res) => {
 export const getTeamByProject = async (req, res) => {
   try {
     const { projectId } = req.params;
+    console.log('Looking for team assignment with projectId:', projectId);
 
     // Find the team assignment for the given project
     const teamAssignment = await AssignTeam.findOne({ project: projectId })
@@ -127,7 +130,10 @@ export const getTeamByProject = async (req, res) => {
       .populate("teamMembers", "fullName email role position")
       .populate("students", "fullName email role");
 
+    console.log('Found team assignment:', teamAssignment);
+
     if (!teamAssignment) {
+      console.log('No team assignment found for projectId:', projectId);
       return res
         .status(404)
         .json({ message: "No team assignment found for this project" });

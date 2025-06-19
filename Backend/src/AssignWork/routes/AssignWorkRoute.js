@@ -18,7 +18,8 @@ import {
   getWorkAssignmentsByProjectNameStatusLogic,
   getWorkCounts,
   getPersonalWorkAssignments,
-  getWorkFile
+  getWorkFile,
+  updateWorkAssignment
 } from "../controllers/AssignWorkController.js";
 import { verifyToken } from "../../Middleware/auth.js";
 
@@ -34,6 +35,9 @@ const upload = multer({
 
 // Create new work assignment with file upload
 router.post("/", verifyToken, upload.single('workFile'), createWorkAssignment);
+
+// Update work assignment
+router.put("/:id", verifyToken, upload.single('workFile'), updateWorkAssignment);
 
 // Get all work assignments
 router.get("/all", verifyToken, getAllWorkAssignments);

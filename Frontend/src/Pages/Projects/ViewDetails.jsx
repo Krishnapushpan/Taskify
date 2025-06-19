@@ -43,6 +43,13 @@ const ViewDetails = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [userAssignments, setUserAssignments] = useState([]);
   const [loadingAssignments, setLoadingAssignments] = useState(false);
+  const [userRole, setUserRole] = useState("");
+
+  // Get user role from localStorage
+  useEffect(() => {
+    const userData = JSON.parse(localStorage.getItem("user"));
+    setUserRole(userData?.role || "");
+  }, []);
 
   // Get projectId for fetching assignment
   const projectId = project?._id || project?.project?._id;
@@ -108,6 +115,7 @@ const ViewDetails = () => {
   // Use assignment if available, else fallback to project
   const teamMembers = assignment?.teamMembers || project.teamMembers || [];
   const students = assignment?.students || project.students || [];
+  const teamLead = assignment?.teamLead || project.teamLead || null;
 
   return (
     <div className="view-details-container">
@@ -123,6 +131,17 @@ const ViewDetails = () => {
             <b>Due Date</b>
             <span>{endDate ? new Date(endDate).toLocaleDateString() : "-"}</span>
           </div>
+          {teamLead && (
+            <div className="view-details-date-item">
+              <b>Team Lead</b>
+              <span>
+                {teamLead.fullName || teamLead.name}
+                {teamLead.position && (
+                  <span style={{ color: "#888", marginLeft: 8 }}>({teamLead.position})</span>
+                )}
+              </span>
+            </div>
+          )}
         </div>
       </div>
       {loading ? (

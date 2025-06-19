@@ -143,10 +143,17 @@ const ViewMoreProjects = () => {
                 <div className="upcoming-project-footer">
                   {userRole === "admin" && (
                     assignedProjectIds.includes(project._id) ? (
-                      <button className="assign-project-button" disabled>
+                      <Link
+                        to={`/assign-project/${project._id}`}
+                        state={{ 
+                          project: project,
+                          isUpdate: true 
+                        }}
+                        className="assign-project-button update-team"
+                      >
                         <FaUsers className="assign-project-button-icon" />
-                        <span>Assigned</span>
-                      </button>
+                        <span>Update Team</span>
+                      </Link>
                     ) : (
                       <Link
                         to={`/assign-project/${project._id}`}

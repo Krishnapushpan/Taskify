@@ -3,11 +3,12 @@ import Meeting from '../models/MeetingModel.js';
 // Create a new meeting
 export const createMeeting = async (req, res) => {
   try {
-    const { projectCreator, fullName, projectName, dueDate, meetingDateTime } = req.body;
-    if (!projectCreator || !projectName || !dueDate || !meetingDateTime) {
+    const { projectId, projectCreator, fullName, projectName, dueDate, meetingDateTime } = req.body;
+    if (!projectId || !projectCreator || !projectName || !dueDate || !meetingDateTime) {
       return res.status(400).json({ message: 'Missing required fields' });
     }
     const meeting = new Meeting({
+      projectId,
       projectCreator,
       fullName,
       projectName,

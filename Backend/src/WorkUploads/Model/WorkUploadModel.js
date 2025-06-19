@@ -5,7 +5,7 @@ const workUploadSchema = new mongoose.Schema({
   description: { type: String, required: false },
   uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   uploadDate: { type: Date, default: Date.now },
-  teamlead:{ type: String, required: true },
+  teamlead: { type: String, required: true },
   file: {
     data: Buffer,
     contentType: String,

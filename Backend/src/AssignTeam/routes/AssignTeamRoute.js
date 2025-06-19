@@ -31,6 +31,9 @@ router.patch("/admin/project/:projectId/status", verifyToken, updateProjectStatu
 // Assign team to a project (requires authentication)
 router.post("/assign", verifyToken, assignTeam);
 
+// Update team assignment (requires authentication)
+router.post("/update", verifyToken, assignTeam);
+
 // Get team assignment for a specific project (requires authentication)
 router.get("/project/:projectId", verifyToken, getTeamByProject);
 

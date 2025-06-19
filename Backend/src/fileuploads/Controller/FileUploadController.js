@@ -3,10 +3,12 @@ import FileUpload from "../Model/FileUploadModel.js";
 // Upload a file
 export const uploadFile = async (req, res) => {
   try {
-    const { projectName, uploadedBy } = req.body;
+    const { projectId, projectName, uploadedBy } = req.body;
+    if (!projectId) return res.status(400).json({ message: "projectId is required" });
     if (!req.file) return res.status(400).json({ message: "No file uploaded" });
 
     const newFile = new FileUpload({
+      projectId,
       projectName,
       uploadedBy,
       file: {

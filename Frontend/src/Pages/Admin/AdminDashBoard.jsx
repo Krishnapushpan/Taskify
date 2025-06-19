@@ -175,7 +175,7 @@ const AdminDashBoard = () => {
             ) : (
               isTeamMemberOrStudentOrTeamLead && <WorkCount />
             )}
-            {isAdminOrTeamLead &&
+            {isAdmin &&
             <div style={{ marginTop: "20px" }}>
               <UpcommingProject />
             </div> }

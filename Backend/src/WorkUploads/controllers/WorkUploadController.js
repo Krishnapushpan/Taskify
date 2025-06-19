@@ -4,6 +4,7 @@ import WorkUpload from "../Model/WorkUploadModel.js";
 export const uploadWorkFile = async (req, res) => {
   try {
     const { projectName, uploadedBy, teamlead, description } = req.body;
+    if (!projectName) return res.status(400).json({ message: "projectName is required" });
     if (!req.file) return res.status(400).json({ message: "No file uploaded" });
 
     const newWorkUpload = new WorkUpload({

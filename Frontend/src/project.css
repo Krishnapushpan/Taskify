@@ -559,6 +559,15 @@
   .assign-project-button:hover {
     background: #5346c9;
   }
+
+  /* Update team button styling */
+  .assign-project-button.update-team {
+    background: #ff9800;
+  }
+  
+  .assign-project-button.update-team:hover {
+    background: #f57c00;
+  }
   
   .assign-project-button-icon {
     margin-right: 8px;
@@ -615,4 +624,32 @@
   color: #fff !important;
   cursor: not-allowed;
   opacity: 1;
+}
+
+/* Update work button styling */
+.update-work-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #ff9800;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+  text-decoration: none;
+  gap: 4px;
+}
+
+.update-work-button:hover {
+  background: #f57c00;
+  color: white;
+  text-decoration: none;
+}
+
+.update-work-button svg {
+  font-size: 12px;
 }

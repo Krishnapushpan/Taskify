@@ -29,7 +29,7 @@
 .assign-work-header h1 {
   font-size: 2.4rem;
   font-weight: 700;
-  color: #1a365d;
+  color: #2c3e50;
   margin: 0;
   letter-spacing: -0.5px;
 }
@@ -76,15 +76,26 @@
 
 .project-details h2 {
   font-size: 1.7rem;
-  color: #2d3748;
+  color: #2c3e50;
   margin-bottom: 0.75rem;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .project-details p {
-  color: #4a5568;
-  margin-bottom: 0.75rem;
+  color: #34495e;
+  font-size: 1.05rem;
+  margin-bottom: 10px;
   line-height: 1.6;
+}
+
+.project-details strong {
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.project-details span {
+  color: #222;
+  font-weight: 500;
 }
 
 .assignments-list {
@@ -106,8 +117,8 @@
 
 .assignments-header h3 {
   font-size: 1.4rem;
-  font-weight: 700;
-  color: #2d3748;
+  font-weight: 600;
+  color: #2c3e50;
   margin: 0;
 }
 
@@ -167,7 +178,7 @@
 
 .assignment-header h4 {
   font-size: 1.2rem;
-  color: #2d3748;
+  color: #2c3e50;
   margin: 0;
   font-weight: 600;
 }
@@ -223,6 +234,21 @@
   box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
 }
 
+.work-description-section textarea::placeholder {
+  color: #888;
+  opacity: 1;
+}
+
+/* For dark theme support, you can add a body.dark selector override if needed */
+body.dark .work-description-section textarea {
+  color: #f5f5f5;
+  background: #222;
+  border-color: #444;
+}
+body.dark .work-description-section textarea::placeholder {
+  color: #bbb;
+}
+
 .assignment-details {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -235,8 +261,8 @@
 }
 
 .detail-field label {
-  font-weight: 600;
-  color: #4a5568;
+  font-weight: 500;
+  color: #2c3e50;
   margin-bottom: 0.5rem;
   display: block;
   font-size: 0.9rem;
@@ -382,8 +408,8 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.4rem 0.8rem;
-  background: #4299e1;
-  color: #fff;
+  background: #e3eafc;
+  color: #1976d2;
   border-radius: 20px;
   font-size: 0.85rem;
   font-weight: 500;
@@ -424,13 +450,13 @@
   align-items: center;
   gap: 0.8rem;
   padding: 1.2rem 2.5rem;
-  background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+  background: #1976d2;
   color: #fff;
   border: none;
   border-radius: 10px;
   cursor: pointer;
   font-size: 1.1rem;
-  font-weight: 600;
+  font-weight: 700;
   transition: all 0.3s ease;
   box-shadow: 0 4px 6px rgba(66, 153, 225, 0.2);
 }
@@ -454,9 +480,9 @@
 }
 
 .error-message {
-  background: #fff5f5;
-  color: #c53030;
-  padding: 1.2rem;
+  background: #f8d7da;
+  color: #e53935;
+  padding: 10px 18px;
   border-radius: 8px;
   margin: 1rem 0;
   border: 2px solid #fc8181;
@@ -465,12 +491,13 @@
   gap: 0.8rem;
   width: 100%;
   box-sizing: border-box;
+  font-weight: 600;
 }
 
 .success-message {
-  background: #f0fff4;
-  color: #2f855a;
-  padding: 1.2rem;
+  background: #e6f9ed;
+  color: #388e3c;
+  padding: 10px 18px;
   border-radius: 8px;
   margin: 1rem 0;
   border: 2px solid #9ae6b4;
@@ -479,6 +506,7 @@
   gap: 0.8rem;
   width: 100%;
   box-sizing: border-box;
+  font-weight: 600;
 }
 
 .loading-container {

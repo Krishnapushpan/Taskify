@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 
 const meetingSchema = new mongoose.Schema({
+  projectId: { type: mongoose.Schema.Types.ObjectId, ref: 'Project', required: true },
   projectCreator: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   fullName: { type: String },
   projectName: { type: String, required: true },

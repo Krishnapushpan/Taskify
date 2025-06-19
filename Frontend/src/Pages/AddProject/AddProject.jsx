@@ -8,6 +8,60 @@ import "../../form.css";
 
 // const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
+// Add these styles at the top of your component
+const styles = {
+  errorInput: {
+    border: '2px solid #ff4d4f',
+    boxShadow: '0 0 0 2px rgba(255, 77, 79, 0.2)'
+  },
+  fieldError: {
+    color: '#ff4d4f',
+    fontSize: '14px',
+    marginTop: '4px',
+    display: 'flex',
+    alignItems: 'center',
+    padding: '4px 8px',
+    backgroundColor: '#fff2f0',
+    border: '1px solid #ffccc7',
+    borderRadius: '4px',
+    width: '100%',
+    maxWidth: '100%',
+    boxSizing: 'border-box'
+  },
+  duplicateError: {
+    color: '#ff4d4f',
+    fontSize: '14px',
+    marginTop: '4px',
+    display: 'flex',
+    alignItems: 'center',
+    padding: '8px 12px',
+    backgroundColor: '#fff2f0',
+    border: '2px solid #ff4d4f',
+    borderRadius: '6px',
+    boxShadow: '0 2px 4px rgba(255, 77, 79, 0.2)',
+    animation: 'shake 0.5s ease-in-out',
+    width: '100%',
+    maxWidth: '100%',
+    boxSizing: 'border-box'
+  },
+  errorIcon: {
+    marginRight: '6px',
+    color: '#ff4d4f',
+    flexShrink: 0
+  }
+};
+
+// Add the shake animation
+const styleSheet = document.createElement('style');
+styleSheet.textContent = `
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+  }
+`;
+document.head.appendChild(styleSheet);
+
 const AddProject = () => {
   const [form, setForm] = useState({
     projectName: "",
@@ -18,6 +72,7 @@ const AddProject = () => {
   });
   const [file, setFile] = useState(null);
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState("");
@@ -37,7 +92,12 @@ const AddProject = () => {
   }, [location.search]);
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+    // Clear error for this field when user starts typing
+    if (fieldErrors[name]) {
+      setFieldErrors(prev => ({ ...prev, [name]: "" }));
+    }
   };
 
   const handleFileChange = (e) => {
@@ -110,11 +170,35 @@ const AddProject = () => {
     }
   };
 
+  const validateProjectName = async (projectName) => {
+    try {
+      // Check if project name is empty
+      if (!projectName.trim()) {
+        setFieldErrors(prev => ({ ...prev, projectName: "Project name is required" }));
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      console.error("Validation error:", error);
+      setFieldErrors(prev => ({ ...prev, projectName: "Error validating project name" }));
+      return false;
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setSuccess("");
+    setFieldErrors({});
     setLoading(true);
+
+    // Validate project name
+    const isProjectNameValid = await validateProjectName(form.projectName);
+    if (!isProjectNameValid) {
+      setLoading(false);
+      return;
+    }
 
     // Validate dates
     if (!form.startDate || !form.endDate) {
@@ -132,7 +216,7 @@ const AddProject = () => {
 
       // Use FormData for file upload
       const formData = new FormData();
-      formData.append("projectName", form.projectName);
+      formData.append("projectName", form.projectName.trim());
       formData.append("description", form.description);
       formData.append("startDate", form.startDate.toISOString());
       formData.append("endDate", form.endDate.toISOString());
@@ -148,7 +232,6 @@ const AddProject = () => {
         withCredentials: true,
         headers: {
           "Content-Type": "multipart/form-data",
-          // Authorization: `Bearer ${token}`,
         },
       });
 
@@ -163,16 +246,24 @@ const AddProject = () => {
           budget: ""
         });
         setFile(null);
+        setFieldErrors({});
       }
     } catch (error) {
       console.error("Project creation error:", error);
 
       if (error.response) {
-        setError(
-          error.response.data?.message ||
-            error.response.data?.error ||
-            "Server error: " + error.response.status
-        );
+        if (error.response.data?.field === "projectName") {
+          setFieldErrors(prev => ({ 
+            ...prev, 
+            projectName: error.response.data.message 
+          }));
+        } else {
+          setError(
+            error.response.data?.message ||
+              error.response.data?.error ||
+              "Server error: " + error.response.status
+          );
+        }
         console.log("Error response:", error.response.data);
       } else if (error.request) {
         setError(
@@ -291,12 +382,37 @@ const AddProject = () => {
         <div className="add-project-form-section">
           <h1 className="add-project-title">Add Project</h1>
 
-          {error && <div className="error-message">{error}</div>}
-          {success && <div className="success-message">{success}</div>}
+          {error && (
+            <div className="error-message" style={{
+              backgroundColor: '#fff2f0',
+              border: '1px solid #ffccc7',
+              color: '#ff4d4f',
+              padding: '8px 12px',
+              borderRadius: '4px',
+              marginBottom: '16px'
+            }}>
+              {error}
+            </div>
+          )}
+          {success && (
+            <div className="success-message" style={{
+              backgroundColor: '#f6ffed',
+              border: '1px solid #b7eb8f',
+              color: '#52c41a',
+              padding: '8px 12px',
+              borderRadius: '4px',
+              marginBottom: '16px'
+            }}>
+              {success}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit}>
             <div className="add-project-form-group">
-              <label htmlFor="projectName"> Project Name:</label>
+              <label htmlFor="projectName">
+                Project Name:
+                <span style={{ color: '#ff4d4f', marginLeft: '4px' }}>*</span>
+              </label>
               <input
                 type="text"
                 id="projectName"
@@ -305,10 +421,21 @@ const AddProject = () => {
                 onChange={handleChange}
                 placeholder="Project Name"
                 required
+                style={fieldErrors.projectName ? styles.errorInput : {}}
               />
+              {fieldErrors.projectName && (
+                <div style={fieldErrors.projectName.includes("different name") ? styles.duplicateError : styles.fieldError}>
+                  <span style={styles.errorIcon}>⚠</span>
+                  {fieldErrors.projectName}
+                </div>
+              )}
             </div>
+
             <div className="add-project-form-group">
-              <label htmlFor="description">Description:</label>
+              <label htmlFor="description">
+                Description:
+                <span style={{ color: '#ff4d4f', marginLeft: '4px' }}>*</span>
+              </label>
               <textarea
                 id="description"
                 name="description"
@@ -319,8 +446,12 @@ const AddProject = () => {
                 required
               ></textarea>
             </div>
+
             <div className="add-project-form-group">
-              <label htmlFor="startDate">Start Date:</label>
+              <label htmlFor="startDate">
+                Start Date:
+                <span style={{ color: '#ff4d4f', marginLeft: '4px' }}>*</span>
+              </label>
               <DatePicker
                 id="startDate"
                 selected={form.startDate}
@@ -333,8 +464,12 @@ const AddProject = () => {
                 icon={<CalendarIcon />}
               />
             </div>
+
             <div className="add-project-form-group">
-              <label htmlFor="endDate">End Date:</label>
+              <label htmlFor="endDate">
+                End Date:
+                <span style={{ color: '#ff4d4f', marginLeft: '4px' }}>*</span>
+              </label>
               <DatePicker
                 id="endDate"
                 selected={form.endDate}
@@ -348,6 +483,7 @@ const AddProject = () => {
                 icon={<CalendarIcon />}
               />
             </div>
+
             <div className="add-project-form-group">
               <label htmlFor="projectFile">Project File (optional):</label>
               <input
@@ -358,8 +494,12 @@ const AddProject = () => {
                 accept="*"
               />
             </div>
+
             <div className="add-project-form-group">
-              <label htmlFor="budget">Budget:</label>
+              <label htmlFor="budget">
+                Budget:
+                <span style={{ color: '#ff4d4f', marginLeft: '4px' }}>*</span>
+              </label>
               <input
                 type="number"
                 id="budget"
@@ -371,12 +511,17 @@ const AddProject = () => {
                 required
               />
             </div>
+
             <div style={{ display: "flex", gap: "16px" }}>
               <button
                 type="button"
                 className="add-project-submit-btn"
                 disabled={loading}
                 onClick={handleRazorpayPayment}
+                style={{
+                  backgroundColor: loading ? '#d9d9d9' : '#1976d2',
+                  cursor: loading ? 'not-allowed' : 'pointer'
+                }}
               >
                 {loading && paymentStatus === "proceed" ? "SUBMITTING..." : "Proceed with Payment"}
               </button>
@@ -385,7 +530,11 @@ const AddProject = () => {
                 className="add-project-submit-btn"
                 disabled={loading}
                 onClick={() => setPaymentStatus("non-proceed")}
-                style={{ background: "#888", color: "#fff" }}
+                style={{
+                  backgroundColor: loading ? '#d9d9d9' : '#888',
+                  color: "#fff",
+                  cursor: loading ? 'not-allowed' : 'pointer'
+                }}
               >
                 {loading && paymentStatus === "non-proceed" ? "SUBMITTING..." : "Proceed without Payment"}
               </button>

@@ -93,39 +93,79 @@ const PersonalWork = () => {
       alert("File size should not exceed 5MB");
       return;
     }
+
     try {
       setUploading((prev) => ({ ...prev, [workId]: true }));
-      const formData = new FormData();
-      formData.append("workFile", file);
+      
+      // Get the work details
+      const work = works.find(w => w._id === workId);
+      if (!work) {
+        throw new Error("Work assignment not found");
+      }
+
+      // Debug log to see work data
+      console.log("Work assignment data:", work);
+
+      const userData = JSON.parse(localStorage.getItem("user"));
+      console.log("User data:", userData);
+
+      if (!work.projectName) {
+        console.error("Missing projectName in work assignment");
+        alert("Error: Project Name is missing");
+        return;
+      }
+
+      // Upload to work-uploads endpoint
+      const uploadFormData = new FormData();
+      uploadFormData.append("file", file);
+      uploadFormData.append("projectName", work.projectName);
+      uploadFormData.append("uploadedBy", userData.userid);
+      uploadFormData.append("teamlead", userData.userid); // Using current user as teamlead for now
+      uploadFormData.append("description", work.workDescription || "File upload for " + work.projectName);
+
+      // Log FormData contents
+      for (let pair of uploadFormData.entries()) {
+        console.log(pair[0] + ': ' + pair[1]);
+      }
+
+      // First update work status
+      const statusFormData = new FormData();
+      statusFormData.append("status", work.status || "In Progress");
+
       await axios.put(
         `${import.meta.env.VITE_API_URL}/api/works/${workId}/status`,
-        formData,
+        statusFormData,
         {
           headers: { "Content-Type": "multipart/form-data" },
           withCredentials: true,
         }
       );
-      const work = works.find(w => w._id === workId);
-      const userData = JSON.parse(localStorage.getItem("user"));
-      const fileFormData = new FormData();
-      fileFormData.append("file", file);
-      fileFormData.append("projectName", work.projectName);
-      fileFormData.append("description", work.workDescription);
-      fileFormData.append("uploadedBy", userData.userid);
-      fileFormData.append("teamlead", work.teamLead?.fullName || work.teamLead || "N/A");
-      await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/work-uploads/`,
-        fileFormData,
+
+      // Then upload file
+      const uploadResponse = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/work-uploads`,
+        uploadFormData,
         {
-          headers: { "Content-Type": "multipart/form-data" },
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
           withCredentials: true,
         }
       );
-      alert("File uploaded successfully!");
+
+      console.log("Upload response:", uploadResponse.data);
+
+      // Update local state
       setSelectedFile((prev) => ({ ...prev, [workId]: null }));
       setWorks((prev) => prev.map(w => w._id === workId ? { ...w, workFile: { data: true } } : w));
+      alert("File uploaded successfully!");
     } catch (err) {
-      alert("Failed to upload file");
+      console.error("Upload error details:", {
+        response: err.response?.data,
+        status: err.response?.status,
+        error: err.message
+      });
+      alert("Failed to upload file: " + (err.response?.data?.message || err.message));
     } finally {
       setUploading((prev) => ({ ...prev, [workId]: false }));
     }
@@ -141,7 +181,8 @@ const PersonalWork = () => {
       setWorks((prev) => prev.map(w => w._id === workId ? { ...w, workFile: null } : w));
       alert("File deleted successfully!");
     } catch (err) {
-      alert("Failed to delete file");
+      console.error("Delete error:", err);
+      alert("Failed to delete file: " + (err.response?.data?.message || err.message));
     }
   };
 
@@ -170,6 +211,31 @@ const PersonalWork = () => {
     }
   };
 
+  // Add file download functionality
+  const handleDownloadFile = async (workId) => {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/api/works/${workId}/file`,
+        {
+          responseType: 'blob',
+          withCredentials: true
+        }
+      );
+      const blob = new Blob([response.data], { type: response.headers['content-type'] });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = response.headers['content-disposition']?.split('filename=')[1]?.replace(/"/g, '') || 'download';
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error("Download error:", error);
+      alert("Failed to download file: " + (error.response?.data?.message || error.message));
+    }
+  };
+
   if (loading) return <div>Loading...</div>;
 
   return (
@@ -193,8 +259,8 @@ const PersonalWork = () => {
           {works.map((w, idx) => (
             <tr key={w._id}>
               <td>{idx + 1}</td>
-              <td>{w.workName || w.projectName}</td>
-              <td>{w.workDescription || w.description}</td>
+              <td>{w.projectName}</td>
+              <td>{w.workDescription}</td>
               <td>{formatDate(w.dueDate)}</td>
               <td>
                 {editingStatusId === w._id ? (
@@ -209,15 +275,6 @@ const PersonalWork = () => {
                         <option key={opt} value={opt}>{opt}</option>
                       ))}
                     </select>
-                    <input
-                      type="file"
-                      onChange={e => handleFileChange(w._id, e.target.files[0])}
-                      style={{ marginLeft: 8 }}
-                      accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
-                    />
-                    {selectedFile[w._id] && (
-                      <span style={{ fontSize: '12px', color: '#888' }}>{selectedFile[w._id].name}</span>
-                    )}
                     <button
                       className="status-edit-btn"
                       onClick={() => handleStatusChange(w._id, statusUpdate)}
@@ -268,24 +325,29 @@ const PersonalWork = () => {
                 )}
               </td>
               <td>
-                <input
-                  type="file"
-                  onChange={e => handleFileChange(w._id, e.target.files[0])}
-                  accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
-                  style={{ marginBottom: 4 }}
-                />
-                {selectedFile[w._id] && (
-                  <button
-                    onClick={() => handleFileUpload(w._id)}
-                    disabled={uploading[w._id]}
-                    style={{ marginLeft: 4 }}
-                  >
-                    {uploading[w._id] ? 'Uploading...' : 'Upload'}
-                  </button>
-                )}
-                {!w.workFile || !w.workFile.data ? (
-                  <span style={{ color: '#aaa', marginLeft: 8 }}>No File</span>
-                ) : null}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <input
+                    type="file"
+                    onChange={e => handleFileChange(w._id, e.target.files[0])}
+                    accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
+                  />
+                  {selectedFile[w._id] && (
+                    <button
+                      onClick={() => handleFileUpload(w._id)}
+                      disabled={uploading[w._id]}
+                      style={{
+                        padding: '4px 8px',
+                        backgroundColor: uploading[w._id] ? '#ccc' : '#4CAF50',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: uploading[w._id] ? 'not-allowed' : 'pointer'
+                      }}
+                    >
+                      {uploading[w._id] ? 'Uploading...' : 'Upload'}
+                    </button>
+                  )}
+                </div>
               </td>
             </tr>
           ))}

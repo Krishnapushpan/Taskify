@@ -6,6 +6,11 @@ const assignTeamSchema = new mongoose.Schema({
     ref: "Project",
     required: true,
   },
+  projectId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Project",
+    required: true,
+  },
   projectCreator: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",

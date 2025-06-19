@@ -19,7 +19,9 @@ const AssignWork = () => {
   const { projectId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const projectDataFromState = location.state || {};
+  const isUpdateMode = location.state?.isUpdate || false;
+  const workDataFromState = location.state?.workData || null;
+  const projectDataFromState = location.state?.project || {};
 
   const [project, setProject] = useState(
     projectDataFromState.projectName
@@ -43,6 +45,7 @@ const AssignWork = () => {
   const [existingAssignments, setExistingAssignments] = useState([]);
   const [showExisting, setShowExisting] = useState(false);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [assignTeam, setAssignTeam] = useState(null);
 
   // Track window resize for responsive adjustments
   useEffect(() => {
@@ -54,18 +57,34 @@ const AssignWork = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Initialize with one empty assignment
+  // Initialize with work data if in update mode, otherwise with one empty assignment
   useEffect(() => {
-    setAssignments([
-      {
+    if (isUpdateMode && workDataFromState) {
+      // Pre-fill with existing work data
+      const existingAssignment = {
         id: Date.now(),
-        workDescription: "",
-        selectedMembers: [],
-        dueDate: "",
-        priority: "Medium",
-      },
-    ]);
-  }, []);
+        workDescription: workDataFromState.workDescription || "",
+        selectedMembers: [
+          ...(workDataFromState.teamMembers?.map(m => m._id) || []),
+          ...(workDataFromState.students?.map(s => s._id) || [])
+        ],
+        dueDate: workDataFromState.dueDate ? new Date(workDataFromState.dueDate).toISOString().split('T')[0] : "",
+        priority: workDataFromState.priority || "Medium",
+        workId: workDataFromState._id // Store the work ID for updating
+      };
+      setAssignments([existingAssignment]);
+    } else {
+      setAssignments([
+        {
+          id: Date.now(),
+          workDescription: "",
+          selectedMembers: [],
+          dueDate: "",
+          priority: "Medium",
+        },
+      ]);
+    }
+  }, [isUpdateMode, workDataFromState]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -253,8 +272,9 @@ const AssignWork = () => {
         return;
       }
 
-      const promises = validAssignments.map(async (assignment) => {
-        // Separate team members and students based on their type
+      if (isUpdateMode) {
+        // Update existing work assignment
+        const assignment = validAssignments[0];
         const teamMemberIds = assignment.selectedMembers.filter((id) =>
           allPeople.find(
             (person) => person._id === id && person.type === "team_member"
@@ -267,39 +287,90 @@ const AssignWork = () => {
           )
         );
 
-        const assignmentData = {
+        const updateData = {
           projectId,
           projectName: project?.projectName || project?.name,
           workDescription: assignment.workDescription,
           teamMemberIds,
           studentIds,
-          status: "Pending",
+          status: workDataFromState.status || "Pending",
           teamLeadId,
         };
 
         // Add optional fields if they exist
         if (assignment.dueDate) {
-          assignmentData.dueDate = assignment.dueDate;
+          updateData.dueDate = assignment.dueDate;
         }
 
         if (assignment.priority) {
-          assignmentData.priority = assignment.priority;
+          updateData.priority = assignment.priority;
         }
 
-        return axios.post(
-          `${import.meta.env.VITE_API_URL}/api/works`,
-          assignmentData,
+        const response = await axios.put(
+          `${import.meta.env.VITE_API_URL}/api/works/${assignment.workId}`,
+          updateData,
           {
             withCredentials: true,
           }
         );
-      });
 
-      const results = await Promise.all(promises);
+        setSuccessMessage("Work assignment updated successfully!");
+      } else {
+        // Create new work assignments
+        const promises = validAssignments.map(async (assignment) => {
+          // Separate team members and students based on their type
+          const teamMemberIds = assignment.selectedMembers.filter((id) =>
+            allPeople.find(
+              (person) => person._id === id && person.type === "team_member"
+            )
+          );
 
-      setSuccessMessage(
-        `${validAssignments.length} work assignment(s) created successfully!`
-      );
+          const studentIds = assignment.selectedMembers.filter((id) =>
+            allPeople.find(
+              (person) => person._id === id && person.type === "student"
+            )
+          );
+
+          // Debug: Log assignTeam and assignTeamId before sending
+          console.log('AssignTeam object:', assignTeam);
+          console.log('AssignTeamId to be sent:', assignTeam?._id);
+          console.log('Project ID to be sent:', projectId);
+          
+          const assignmentData = {
+            assignTeamId: assignTeam?._id,
+            projectId: projectId, // Add projectId directly
+            projectName: project?.projectName || project?.name,
+            workDescription: assignment.workDescription,
+            teamMemberIds,
+            studentIds,
+            status: "Pending",
+            teamLeadId,
+          };
+
+          // Add optional fields if they exist
+          if (assignment.dueDate) {
+            assignmentData.dueDate = assignment.dueDate;
+          }
+
+          if (assignment.priority) {
+            assignmentData.priority = assignment.priority;
+          }
+
+          return axios.post(
+            `${import.meta.env.VITE_API_URL}/api/works`,
+            assignmentData,
+            {
+              withCredentials: true,
+            }
+          );
+        });
+
+        const results = await Promise.all(promises);
+
+        setSuccessMessage(
+          `${validAssignments.length} work assignment(s) created successfully!`
+        );
+      }
 
       // Reset form
       setAssignments([
@@ -349,6 +420,26 @@ const AssignWork = () => {
   // Check if we're on a mobile screen
   const isMobile = windowWidth <= 768;
 
+  useEffect(() => {
+    const fetchAssignTeam = async () => {
+      try {
+        console.log('Fetching AssignTeam for projectId:', projectId);
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_URL}/api/teams/by-project/${projectId}`,
+          { withCredentials: true }
+        );
+        const assignTeamData = Array.isArray(response.data) ? response.data[0] : response.data;
+        console.log('Raw response data:', response.data);
+        console.log('Processed assignTeamData:', assignTeamData);
+        setAssignTeam(assignTeamData);
+      } catch (err) {
+        console.error('Error fetching AssignTeam:', err);
+        setAssignTeam(null);
+      }
+    };
+    if (projectId) fetchAssignTeam();
+  }, [projectId]);
+
   if (isLoading) {
     return (
       <div className="assign-work-page">
@@ -377,7 +468,7 @@ const AssignWork = () => {
   return (
     <div className="assign-work-page">
       <div className="assign-work-header">
-        <h1>{isMobile ? "Assign Work" : "Assign Work to Team"}</h1>
+        <h1>{isMobile ? (isUpdateMode ? "Update Work" : "Assign Work") : (isUpdateMode ? "Update Work Assignment" : "Assign Work to Team")}</h1>
         <button onClick={handleGoBack} className="back-button">
           <FaArrowLeft /> {isMobile ? "Back" : "Return to Dashboard"}
         </button>
@@ -405,8 +496,13 @@ const AssignWork = () => {
                 {new Date(project.endDate).toLocaleDateString()}
               </p>
             )}
+            {assignTeam && (
+              <>
+                <p><strong>Project (AssignTeam):</strong> {assignTeam.project}</p>
+                <p><strong>ProjectId (AssignTeam):</strong> {assignTeam.projectId}</p>
+              </>
+            )}
           </div>
-
           {existingAssignments.length > 0 && (
             <div className="existing-assignments-toggle">
               <button
@@ -489,22 +585,24 @@ const AssignWork = () => {
         <form onSubmit={handleSubmit} className="assign-work-form">
           <div className="assignments-list">
             <div className="assignments-header">
-              <h3>New Work Assignments</h3>
-              <button
-                type="button"
-                onClick={addNewAssignment}
-                className="add-assignment-btn"
-              >
-                <FaPlus /> {isMobile ? "Add" : "Add Assignment"}
-              </button>
+              <h3>{isUpdateMode ? "Update Work Assignment" : "New Work Assignments"}</h3>
+              {!isUpdateMode && (
+                <button
+                  type="button"
+                  onClick={addNewAssignment}
+                  className="add-assignment-btn"
+                >
+                  <FaPlus /> {isMobile ? "Add" : "Add Assignment"}
+                </button>
+              )}
             </div>
 
             <div className="assignments-grid">
               {assignments.map((assignment, index) => (
                 <div key={assignment.id} className="assignment-card">
                   <div className="assignment-header">
-                    <h4>Assignment #{index + 1}</h4>
-                    {assignments.length > 1 && (
+                    <h4>{isUpdateMode ? "Update Assignment" : `Assignment #${index + 1}`}</h4>
+                    {!isUpdateMode && assignments.length > 1 && (
                       <button
                         type="button"
                         onClick={() => removeAssignment(assignment.id)}
@@ -696,12 +794,12 @@ const AssignWork = () => {
               {isSaving ? (
                 <>
                   <FaSync className="spinning" />{" "}
-                  {isMobile ? "Saving..." : "Assigning Work..."}
+                  {isMobile ? (isUpdateMode ? "Updating..." : "Saving...") : (isUpdateMode ? "Updating Work..." : "Assigning Work...")}
                 </>
               ) : (
                 <>
                   <FaCheckCircle />{" "}
-                  {isMobile ? "Assign Work" : "Assign All Work"}
+                  {isMobile ? (isUpdateMode ? "Update Work" : "Assign Work") : (isUpdateMode ? "Update Work Assignment" : "Assign  Work")}
                 </>
               )}
             </button>
