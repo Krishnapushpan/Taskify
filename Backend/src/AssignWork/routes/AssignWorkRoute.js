@@ -19,7 +19,8 @@ import {
   getWorkCounts,
   getPersonalWorkAssignments,
   getWorkFile,
-  updateWorkAssignment
+  updateWorkAssignment,
+  getWorkCountsByProjectName
 } from "../controllers/AssignWorkController.js";
 import { verifyToken } from "../../Middleware/auth.js";
 
@@ -91,6 +92,9 @@ router.get("/project-by-name/:projectName/assignments-by-status", getWorkAssignm
 
 // Get work counts
 router.get("/counts", getWorkCounts);
+
+// Get work counts by project name
+router.get("/counts/project-name/:projectName", getWorkCountsByProjectName);
 
 // Get work file
 router.get("/:id/file", verifyToken, getWorkFile);

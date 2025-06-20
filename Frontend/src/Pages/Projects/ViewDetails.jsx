@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./Projects.css";
 
@@ -31,11 +30,7 @@ const ProfileCard = ({ user, onClick }) => {
   );
 };
 
-const ViewDetails = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const { project } = location.state || {};
-
+const ViewDetails = ({ project, onBack }) => {
   // State for assignment details
   const [assignment, setAssignment] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -44,6 +39,8 @@ const ViewDetails = () => {
   const [userAssignments, setUserAssignments] = useState([]);
   const [loadingAssignments, setLoadingAssignments] = useState(false);
   const [userRole, setUserRole] = useState("");
+  const [workCounts, setWorkCounts] = useState(null);
+  const [loadingCounts, setLoadingCounts] = useState(false);
 
   // Get user role from localStorage
   useEffect(() => {
@@ -76,6 +73,23 @@ const ViewDetails = () => {
     }
   }, [project, projectId]);
 
+  // Fetch work counts for the project
+  useEffect(() => {
+    const projectName = project?.projectName || project?.project?.projectName;
+    if (projectName) {
+      setLoadingCounts(true);
+      axios.get(`${import.meta.env.VITE_API_URL}/api/works/counts/project-name/${encodeURIComponent(projectName)}`, { withCredentials: true })
+        .then(res => {
+          setWorkCounts(res.data.counts);
+        })
+        .catch(err => {
+          console.error("Failed to fetch work counts:", err);
+          setWorkCounts(null);
+        })
+        .finally(() => setLoadingCounts(false));
+    }
+  }, [project]);
+
   const handleUserCardClick = async (user) => {
     setSelectedUser(user);
     setLoadingAssignments(true);
@@ -102,7 +116,7 @@ const ViewDetails = () => {
     return (
       <div className="view-details-container">
         <h2>No project details found.</h2>
-        <button className="back-button" onClick={() => navigate(-1)}>Go Back</button>
+        <button className="back-button" onClick={onBack}>Go Back</button>
       </div>
     );
   }
@@ -131,7 +145,7 @@ const ViewDetails = () => {
             <b>Due Date</b>
             <span>{endDate ? new Date(endDate).toLocaleDateString() : "-"}</span>
           </div>
-          {teamLead && (
+          {(userRole === "Admin" || userRole === "admin") && teamLead && (
             <div className="view-details-date-item">
               <b>Team Lead</b>
               <span>
@@ -144,6 +158,36 @@ const ViewDetails = () => {
           )}
         </div>
       </div>
+
+      {/* Work Statistics Section */}
+      {workCounts && (
+        <div className="work-stats-section">
+          <h3 className="work-stats-title">Work Statistics</h3>
+          <div className="work-stats-grid">
+            <div className="work-stat-card total">
+              <div className="work-stat-number">{workCounts.totalAssigned}</div>
+              <div className="work-stat-label">Total Tasks</div>
+            </div>
+            <div className="work-stat-card completed">
+              <div className="work-stat-number">{workCounts.completed}</div>
+              <div className="work-stat-label">Completed</div>
+            </div>
+            <div className="work-stat-card in-progress">
+              <div className="work-stat-number">{workCounts.inProgress}</div>
+              <div className="work-stat-label">In Progress</div>
+            </div>
+            <div className="work-stat-card pending">
+              <div className="work-stat-number">{workCounts.pending}</div>
+              <div className="work-stat-label">Pending</div>
+            </div>
+            <div className="work-stat-card overdue">
+              <div className="work-stat-number">{workCounts.overdue}</div>
+              <div className="work-stat-label">Overdue</div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {loading ? (
         <div>Loading team assignment...</div>
       ) : error ? (
@@ -193,8 +237,10 @@ const ViewDetails = () => {
                     <tr key={a._id}>
                       <td>{a.workDescription}</td>
                       <td>{a.dueDate ? new Date(a.dueDate).toLocaleDateString() : "-"}</td>
-                      <td className={`status-${a.status.toLowerCase().replace(' ', '-')}`}>
-                        {a.status}
+                      <td>
+                        <span className={`status-badge-table status-${a.status.toLowerCase().replace(/\s+/g, '-')}`}>
+                          {a.status}
+                        </span>
                       </td>
                       <td>{a.percentage !== undefined ? `${a.percentage}%` : (a.progress !== undefined ? `${a.progress}%` : "-")}</td>
                       <td className={a.remainingDays < 0 ? 'remaining-days-overdue' : 'remaining-days'}>
@@ -208,7 +254,7 @@ const ViewDetails = () => {
           )}
         </div>
       )}
-      <button className="back-button" onClick={() => navigate(-1)}>Back</button>
+      <button className="back-button" onClick={onBack}>Back to Projects</button>
     </div>
   );
 };

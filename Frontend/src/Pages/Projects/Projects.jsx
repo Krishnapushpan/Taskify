@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./Projects.css";
-import { useNavigate } from "react-router-dom";
 
 const statusLabels = [
   { key: "all", label: "All" },
@@ -10,7 +9,7 @@ const statusLabels = [
   { key: "Pending", label: "Pending" },
 ];
 
-const Projects = () => {
+const Projects = ({ onViewDetails }) => {
   const [projects, setProjects] = useState([]);
   const [selectedProject, setSelectedProject] = useState(null);
   const [workCounts, setWorkCounts] = useState(null);
@@ -23,7 +22,6 @@ const Projects = () => {
   const [isTeamlead, setIsTeamlead] = useState(false);
   const [viewMode, setViewMode] = useState("projects"); // "projects" or "assignments"
   const [success, setSuccess] = useState("");
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -182,96 +180,15 @@ const Projects = () => {
     ? assignments
     : assignments.filter(a => a.status === statusFilter);
 
+  const handleViewDetails = (project) => {
+    if (onViewDetails) {
+      onViewDetails(project);
+    }
+  };
+
   return (
     <div className="projects-modern-page">
       <h1 className="projects-modern-title">Projects</h1>
-      {/* {loading ? (
-        <div>Loading...</div>
-      ) : error ? (
-        <div style={{ color: "red" }}>{error}</div>
-      ) : (isAdmin || isTeamlead) ? (
-        <div className="admin-projects-view">
-          <div className="work-assignments-table-modern-container">
-            <table className="work-assignments-table-modern">
-              <thead>
-                <tr>
-                  <th>Project Name</th>
-                  <th>Description</th>
-                  <th>Start Date</th>
-                  <th>End Date</th>
-                  {isAdmin && <th>Created By</th>}
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredProjects.map((project) => (
-                  <tr key={project._id}>
-                    <td>{project.projectName}</td>
-                    <td>{project.description}</td>
-                    <td>{project.startDate ? new Date(project.startDate).toLocaleDateString() : "-"}</td>
-                    <td>{project.endDate ? new Date(project.endDate).toLocaleDateString() : "-"}</td>
-                    {isAdmin && (
-                      <td>{project.addedBy?.fullName || project.addedBy || "-"}</td>
-                    )}
-                    <td>
-                      <button
-                        onClick={() => navigate("/view-details", { state: { project } })}
-                        style={{
-                          padding: "4px 8px",
-                          borderRadius: "4px",
-                          border: "1px solid #1976d2",
-                          background: "#fff",
-                          color: "#1976d2",
-                          cursor: "pointer",
-                          marginRight: isAdmin ? 8 : 0
-                        }}
-                      >
-                        View Details
-                      </button>
-                      {isAdmin && (
-                        <button
-                          onClick={() => handleDeleteProject(project._id)}
-                          style={{
-                            padding: "4px 8px",
-                            borderRadius: "4px",
-                            border: "1px solid #e53935",
-                            background: "#fff",
-                            color: "#e53935",
-                            cursor: "pointer"
-                          }}
-                        >
-                          Delete
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      ) : (
-        <div className="projects-modern-layout">
-          <div className="projects-list-sidebar">
-            <h3>All Projects</h3>
-            <ul className="projects-list">
-              {projects.map((project) => (
-                <li key={project._id}>
-                  <div className="project-list-card">
-                    <div className="project-list-card-title">{project.projectName}</div>
-                    <div className="project-list-card-desc">{project.description}</div>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div className="project-details-main">
-            <div className="project-details-placeholder">
-              Select a project to view details
-            </div>
-          </div>
-        </div>
-      )} */}
       <div className="projects-container">
         {error && (
           <div className="error-message" style={{ color: 'red', marginBottom: '1rem' }}>
@@ -308,7 +225,7 @@ const Projects = () => {
                     )}
                     <td>
                       <button
-                        onClick={() => navigate("/view-details", { state: { project } })}
+                        onClick={() => handleViewDetails(project)}
                         style={{
                           padding: "4px 8px",
                           borderRadius: "4px",

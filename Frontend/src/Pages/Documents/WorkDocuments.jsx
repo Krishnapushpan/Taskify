@@ -50,7 +50,7 @@ const WorkDocuments = () => {
 
   return (
     <div className="documents-container">
-      <h2>Uploaded Work Documents</h2>
+      <h2>Uploaded Documents</h2>
       {loading ? (
         <div>Loading...</div>
       ) : error ? (
@@ -61,26 +61,20 @@ const WorkDocuments = () => {
             <tr>
               <th>#</th>
               <th>Project Name</th>
-              <th>Description</th>
               <th>Uploaded Date</th>
-              <th>Uploaded By</th>
-              <th>Team Lead</th>
               <th>Document</th>
               <th>Action</th>
             </tr>
           </thead>
           <tbody>
             {documents.length === 0 ? (
-              <tr><td colSpan={8} style={{ textAlign: 'center' }}>No work documents found</td></tr>
+              <tr><td colSpan={5} style={{ textAlign: 'center' }}>No documents found</td></tr>
             ) : (
               documents.map((doc, idx) => (
                 <tr key={doc._id}>
                   <td>{idx + 1}</td>
                   <td>{doc.projectName}</td>
-                  <td>{doc.description || "N/A"}</td>
                   <td>{formatDate(doc.uploadDate)}</td>
-                  <td>{doc.uploadedBy?.fullName || doc.uploadedBy || "N/A"}</td>
-                  <td>{doc.teamlead || "N/A"}</td>
                   <td>
                     <a
                       href={`${import.meta.env.VITE_API_URL}/api/work-uploads/${doc._id}`}
@@ -94,7 +88,7 @@ const WorkDocuments = () => {
                   <td>
                     <button
                       onClick={() => handleDelete(doc._id)}
-                      style={{ marginLeft: 8, color: 'red' }}
+                      className="delete-button"
                     >
                       Delete
                     </button>

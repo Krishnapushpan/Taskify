@@ -668,3 +668,39 @@ export const updateWorkAssignment = async (req, res) => {
   }
 };
 
+// Get work counts for a specific project by name
+export const getWorkCountsByProjectName = async (req, res) => {
+  try {
+    const { projectName } = req.params;
+    if (!projectName) {
+      return res.status(400).json({ message: "Project name is required" });
+    }
+    
+    const filter = { projectName: { $regex: new RegExp(`^${projectName}$`, 'i') } };
+    const totalAssigned = await AssignWork.countDocuments(filter);
+    const completed = await AssignWork.countDocuments({ ...filter, status: "Completed" });
+    const pending = await AssignWork.countDocuments({ ...filter, status: "Pending" });
+    const inProgress = await AssignWork.countDocuments({ ...filter, status: "In Progress" });
+    
+    // Overdue: dueDate < today and status != 'Completed'
+    const today = new Date();
+    const overdue = await AssignWork.countDocuments({
+      ...filter,
+      dueDate: { $lt: today },
+      status: { $ne: "Completed" }
+    });
+    
+    res.status(200).json({
+      counts: {
+        totalAssigned,
+        completed,
+        pending,
+        inProgress,
+        overdue,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to get work counts by project name", error: error.message });
+  }
+};
+

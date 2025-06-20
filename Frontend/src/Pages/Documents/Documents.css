@@ -8,7 +8,7 @@
 }
 
 .documents-container h2 {
-  font-size: 2rem;
+  font-size: 1.8rem;
   font-weight: 600;
   color: #2d3a4a;
   margin-bottom: 24px;
@@ -18,58 +18,67 @@
 .documents-table {
   width: 100%;
   border-collapse: collapse;
-  background: #f9fbfd;
   border-radius: 8px;
   overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .documents-table th, .documents-table td {
-  padding: 14px 18px;
-  border-bottom: 1px solid #e6eaf0;
+  padding: 16px 18px;
   text-align: left;
+  border-bottom: 1px solid #dcf4ec;
 }
 
 .documents-table th {
-  background: #eaf1fb;
-  color: #1976d2;
+  background: #20c997;
+  color: #fff;
   font-weight: 600;
-  font-size: 1.05rem;
-  border-bottom: 2px solid #d0d7e5;
+  font-size: 1rem;
+  border-bottom: none;
+}
+
+.documents-table td {
+  background-color: #f0fdf9;
 }
 
 .documents-table tr:last-child td {
   border-bottom: none;
 }
 
-.documents-table tr:hover {
-  background: #f1f7ff;
+.documents-table tr:hover td {
+  background-color: #dcf4ec;
 }
 
 .view-document-button {
-  color: #1976d2;
-  text-decoration: underline;
+  color: #17a2b8;
+  text-decoration: none;
   cursor: pointer;
-  font-weight: 500;
-  background: none;
+  font-weight: 600;
+  background: transparent;
   border: none;
   padding: 0;
 }
 
-/* button {
-  background: #f1556c;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  padding: 6px 16px;
-  font-size: 0.98rem;
-  cursor: pointer;
-  margin-left: 8px;
-  transition: background 0.2s;
+.view-document-button:hover {
+  text-decoration: underline;
 }
 
-button:hover {
-  background: #d43a52;
-} */
+/* General purpose delete button - styled as a link */
+.delete-button {
+  background-color: transparent;
+  color: #dc3545;
+  border: none;
+  padding: 0;
+  font-size: 0.95rem;
+  cursor: pointer;
+  margin-left: 8px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.delete-button:hover {
+  text-decoration: underline;
+}
 
 @media (max-width: 700px) {
   .documents-container {

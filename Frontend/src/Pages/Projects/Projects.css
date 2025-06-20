@@ -412,14 +412,15 @@
 /* View Details Page Styles */
 .view-details-container {
   /* max-width: 900px; */
-  margin: 40px auto;
+  margin: 0;
   background: #fff;
   border-radius: 16px;
-  box-shadow: 0 4px 32px #0002;
-  padding: 40px;
-  width: 100vw;
-  height: 100vh;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  padding: 32px;
+  width: 100%;
+  height: auto;
   position: relative;
+  box-sizing: border-box;
 }
 
 .view-details-header {
@@ -565,59 +566,72 @@
 }
 
 .assignments-table-container {
-  background: #f8fbff;
-  border-radius: 12px;
-  box-shadow: 0 2px 12px #0001;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   padding: 0;
   overflow: hidden;
+  border: 1px solid #e0e0e0;
 }
 
 .assignments-table {
   width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
+  border-collapse: collapse;
   font-size: 16px;
 }
 
-.assignments-table thead tr {
-  background: #e3f0ff;
-}
-
 .assignments-table th {
-  padding: 14px 0;
-  font-weight: 700;
-  color: #2c3e50;
-  background: #f5f7fa;
+  background: #fdb813; /* Yellowish color from image */
+  color: #fff; /* White text */
+  padding: 18px 16px;
+  text-align: left;
+  font-weight: 600;
+  border: none;
+  font-size: 15px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.assignments-table tbody tr:nth-child(even) {
-  background: #fff;
+.assignments-table tbody tr {
+  border-bottom: 1px solid #f0f0f0; /* Row separator */
+}
+
+.assignments-table tbody tr:last-child {
+  border-bottom: none;
 }
 
 .assignments-table td {
-  padding: 12px 0;
-  text-align: center;
-  color: #222;
-}
-
-.assignments-table td:first-child {
+  padding: 16px;
   text-align: left;
-  padding-left: 16px;
+  color: #333;
+  vertical-align: middle;
+  font-weight: 500;
 }
 
-.status-completed {
-  color: #388e3c;
+.status-badge-table {
+  padding: 6px 14px;
+  border-radius: 16px;
   font-weight: 600;
+  font-size: 14px;
+  display: inline-block;
+  text-align: center;
+  min-width: 110px;
+  text-transform: capitalize;
 }
 
-.status-in-progress {
-  color: #fbc02d;
-  font-weight: 600;
+.status-badge-table.status-completed {
+  color: #388e3c; /* Dark Green */
+  background-color: #e8f5e9; /* Light Green */
 }
 
-.status-pending {
-  color: #e53935;
-  font-weight: 600;
+.status-badge-table.status-in-progress {
+  color: #f57c00; /* Dark Orange */
+  background-color: #fff3e0; /* Light Orange */
+}
+
+.status-badge-table.status-pending {
+  color: #d32f2f; /* Dark Red */
+  background-color: #ffebee; /* Light Red */
 }
 
 .remaining-days {
@@ -625,15 +639,10 @@
   font-weight: 600;
 }
 
-.remaining-days-overdue {
-  color: #e53935;
-  font-weight: 600;
-}
-
 .back-button {
   position: absolute;
-  top: 48px;
-  right: 48px;
+  top: 32px;
+  right: 32px;
   padding: 10px 32px;
   border-radius: 8px;
   border: none;
@@ -651,23 +660,229 @@
   background: #1565c0;
 }
 
+/* Responsive styles for ViewDetails */
+@media (max-width: 1024px) {
+  .view-details-container {
+    padding: 24px;
+  }
+  .view-details-dates {
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .view-details-date-item {
+    flex-basis: calc(50% - 8px); /* Two items per row */
+  }
+  .assignments-table {
+    font-size: 15px;
+  }
+}
+
 @media (max-width: 768px) {
   .view-details-container {
-    padding: 20px;
-    margin: 20px;
+    padding: 16px;
+    margin: 0; /* Remove margin from old style */
+    border-radius: 12px;
   }
-
+  .view-details-header {
+    padding: 16px;
+    margin-bottom: 24px;
+  }
+  .view-details-title {
+    font-size: 22px;
+  }
+  .view-details-dates {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .view-details-date-item {
+    flex-basis: 100%;
+  }
   .view-details-section {
     flex-direction: column;
     gap: 24px;
   }
-
-  .profile-card {
-    min-width: 160px;
-    max-width: 200px;
+  .profile-cards-container {
+    justify-content: center;
   }
-
+  .profile-card {
+    min-width: 150px;
+    max-width: 180px;
+    padding: 16px;
+  }
+  .assignments-table-container {
+    overflow-x: auto;
+  }
   .assignments-table {
     font-size: 14px;
+    min-width: 600px; /* Allow scrolling */
+  }
+  .back-button {
+    position: relative; /* Change from absolute */
+    top: auto;
+    right: auto;
+    width: 100%;
+    margin-top: 24px;
+    padding: 12px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .view-details-container {
+    padding: 12px;
+    box-shadow: none;
+    border-radius: 0;
+  }
+  .view-details-header {
+    padding: 12px;
+  }
+  .view-details-title {
+    font-size: 18px;
+    padding: 8px 12px;
+  }
+  .profile-card {
+    width: 100%;
+    max-width: none;
+  }
+  .assignments-table {
+    font-size: 12px;
+    min-width: 500px;
+  }
+  .assignments-table th,
+  .assignments-table td {
+    padding: 8px;
+  }
+  .back-button {
+    font-size: 14px;
+  }
+}
+
+/* Work Statistics Section */
+.work-stats-section {
+  margin: 32px 0;
+  padding: 24px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+}
+
+.work-stats-title {
+  margin-bottom: 20px;
+  color: #2c3e50;
+  font-weight: 600;
+  font-size: 1.2rem;
+}
+
+.work-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+}
+
+.work-stat-card {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-left: 4px solid;
+}
+
+.work-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.work-stat-card.total {
+  border-left-color: #1976d2;
+}
+
+.work-stat-card.completed {
+  border-left-color: #4caf50;
+}
+
+.work-stat-card.in-progress {
+  border-left-color: #ff9800;
+}
+
+.work-stat-card.pending {
+  border-left-color: #f44336;
+}
+
+.work-stat-card.overdue {
+  border-left-color: #9c27b0;
+}
+
+.work-stat-number {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.work-stat-card.total .work-stat-number {
+  color: #1976d2;
+}
+
+.work-stat-card.completed .work-stat-number {
+  color: #4caf50;
+}
+
+.work-stat-card.in-progress .work-stat-number {
+  color: #ff9800;
+}
+
+.work-stat-card.pending .work-stat-number {
+  color: #f44336;
+}
+
+.work-stat-card.overdue .work-stat-number {
+  color: #9c27b0;
+}
+
+.work-stat-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Responsive styles for work stats */
+@media (max-width: 768px) {
+  .work-stats-section {
+    padding: 16px;
+    margin: 24px 0;
+  }
+  
+  .work-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  
+  .work-stat-card {
+    padding: 16px;
+  }
+  
+  .work-stat-number {
+    font-size: 1.5rem;
+  }
+  
+  .work-stat-label {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .work-stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .work-stat-card {
+    padding: 12px;
+  }
+  
+  .work-stat-number {
+    font-size: 1.3rem;
   }
 }

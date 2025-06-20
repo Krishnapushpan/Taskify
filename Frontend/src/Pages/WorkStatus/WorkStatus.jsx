@@ -7,6 +7,7 @@ const WorkStatus = () => {
   const [works, setWorks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [role, setRole] = useState("");
+  const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
     const userData = JSON.parse(localStorage.getItem("user"));
@@ -83,6 +84,8 @@ const WorkStatus = () => {
 
   if (loading) return <div>Loading...</div>;
 
+  const displayedWorks = showAll ? works : works.slice(0, 5);
+
   return (
     <div className="project-list-container">
       <div className="project-list-header">
@@ -104,7 +107,7 @@ const WorkStatus = () => {
           </tr>
         </thead>
         <tbody>
-          {works.map((w, idx) => (
+          {displayedWorks.map((w, idx) => (
             <tr key={w._id}>
               <td>{idx + 1}</td>
               <td>{w.projectName}</td>
@@ -169,6 +172,16 @@ const WorkStatus = () => {
           ))}
         </tbody>
       </table>
+      {!showAll && works.length > 5 && (
+        <div style={{ textAlign: 'center', marginTop: '20px' }}>
+          <button 
+            onClick={() => setShowAll(true)}
+            className="view-all-button"
+          >
+            View All
+          </button>
+        </div>
+      )}
     </div>
   );
 };

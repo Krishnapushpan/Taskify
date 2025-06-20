@@ -140,7 +140,7 @@ const Documents = () => {
                   <td>
                     <button
                       onClick={() => handleDelete(doc._id)}
-                      style={{ marginLeft: 8, color: 'red' }}
+                      className="delete-button"
                     >
                       Delete
                     </button>
@@ -151,13 +151,6 @@ const Documents = () => {
           </tbody>
         </table>
       )}
-      <style>{`
-        .documents-container { padding: 24px; }
-        .documents-table { width: 100%; border-collapse: collapse; margin-top: 16px; }
-        .documents-table th, .documents-table td { border: 1px solid #e0e0e0; padding: 8px 12px; }
-        .documents-table th { background: #f5f5f5; }
-        .view-document-button { color: #1976d2; text-decoration: underline; cursor: pointer; }
-      `}</style>
     </div>
   );
 };

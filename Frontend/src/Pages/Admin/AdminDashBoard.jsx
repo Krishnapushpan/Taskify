@@ -16,6 +16,7 @@ import WorkStatus from "../WorkStatus/WorkStatus";
 import ProjectCount from "../../Components/ProjectCount";
 import Meeting from "../Meeting/Meeting";
 import Projects from "../Projects/Projects";
+import ViewDetails from "../Projects/ViewDetails";
 import MyWork from "../MyWork/MyWork";
 import Documents from "../Documents/Documents";
 import WorkDocuments from "../Documents/WorkDocuments";
@@ -26,6 +27,7 @@ const AdminDashBoard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1000);
   const [userRole, setUserRole] = useState(null);
+  const [selectedProject, setSelectedProject] = useState(null);
 
   // Get user role from localStorage on component mount
   useEffect(() => {
@@ -56,9 +58,20 @@ const AdminDashBoard = () => {
 
   const handleItemClick = (item) => {
     setSelectedItem(item);
+    setSelectedProject(null); // Clear selected project when switching items
     if (isMobile) {
       setSidebarOpen(false); // Close sidebar on selection in mobile view
     }
+  };
+
+  const handleViewDetails = (project) => {
+    setSelectedProject(project);
+    setSelectedItem("ViewDetails");
+  };
+
+  const handleBackToProjects = () => {
+    setSelectedProject(null);
+    setSelectedItem("Projects");
   };
 
   const toggleSidebar = () => {
@@ -145,7 +158,9 @@ const AdminDashBoard = () => {
         ) : selectedItem === "Meetings" ? (
           <Meeting />
         ) : selectedItem === "Projects" ? (
-          <Projects />
+          <Projects onViewDetails={handleViewDetails} />
+        ) : selectedItem === "ViewDetails" && selectedProject ? (
+          <ViewDetails project={selectedProject} onBack={handleBackToProjects} />
         ) : selectedItem === "My Work" ? (
           <MyWork />
         ) : selectedItem === "Tasks" ? (
